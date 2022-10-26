@@ -2,27 +2,28 @@ import { getDatabase, set, ref as getRef, onValue, remove } from "firebase/datab
 import { app } from "./firebase";
 
 type Message = { sender: string; value: string };
-type Content = { description?: RTCSessionDescription; candidate?: RTCIceCandidate };
+type Content = { description?: RTCSessionDescription; candidate?: RTCIceCandidate | null };
 
 export class SignalingChannel {
   private db = getDatabase(app);
   public lastMessage: Message | undefined;
   public unsubscribe: ReturnType<typeof onValue> = () => 0;
 
-  constructor(private username: string) {
-    console.log("my id: ", this.username);
+  constructor(private myUsername: string) {
+    console.log("my id: ", this.myUsername);
   }
 
-  public send(recipientId: string, value: Content) {
-    console.log("SIGCHAN - Recipient ID: ", recipientId);
-    if (recipientId.length < 4) throw TypeError("Recipient must have an Id greater than 4 characters.");
-    const message: Message = { sender: this.username, value: JSON.stringify(value) };
-    const ref = getRef(this.db, recipientId);
+  public send(theirUsername: string, value: Content) {
+    console.log("SIGCHAN - Recipient ID: ", theirUsername);
+    if (!theirUsername || typeof theirUsername !== "string" || theirUsername.length < 4)
+      throw TypeError("Recipient must have an Id greater than 4 characters.");
+    const message: Message = { sender: this.myUsername, value: JSON.stringify(value) };
+    const ref = getRef(this.db, theirUsername);
     set(ref, message);
   }
 
   public subscribe(callback: (message: Content, theirUsername: string) => void) {
-    const ref = getRef(this.db, this.username);
+    const ref = getRef(this.db, this.myUsername);
     remove(ref).then(() => {
       this.unsubscribe = onValue(ref, (snapshot) => {
         const data = snapshot.val() as Message | null;

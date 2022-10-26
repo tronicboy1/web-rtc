@@ -1,6 +1,7 @@
 import { SignalingChannel } from "./signaling-channel";
 import "./style.css";
 import "./components/register-username";
+import "webrtc-adapter";
 
 class WebRTC {
   /** source: https://www.metered.ca/tools/openrelay/ */
@@ -32,7 +33,7 @@ class WebRTC {
   private ignoreOffer = false;
   private makingOffer = false;
   public polite = true;
-  public theirId = "";
+  public theirUsername: string | undefined;
 
   constructor(private username: string) {
     this.signalingChannel = new SignalingChannel(this.username);
@@ -47,14 +48,14 @@ class WebRTC {
     { candidate, description },
     theirUsername
   ) => {
-    this.theirId = theirUsername;
+    this.theirUsername = theirUsername;
     if (description) {
       const offerCollision =
         description.type === "offer" && (this.makingOffer || this.peerConnection.signalingState !== "stable");
-
       console.log("offerCollision: ", offerCollision);
       this.ignoreOffer = !this.polite && offerCollision;
       if (this.ignoreOffer) return;
+
       console.log("Remote desciption");
       await this.peerConnection.setRemoteDescription(description);
       if (description.type === "offer") {
@@ -62,7 +63,7 @@ class WebRTC {
         console.log("Offer received");
         const desciption = this.peerConnection.localDescription;
         if (!desciption) throw TypeError("Local Description not set.");
-        this.signalingChannel.send(this.theirId, { description });
+        this.signalingChannel.send(this.theirUsername, { description });
       }
     } else if (candidate) {
       try {
@@ -76,11 +77,11 @@ class WebRTC {
   };
 
   public async makeOffer(theirUsername: string) {
-    this.theirId = theirUsername;
+    this.theirUsername = theirUsername;
     try {
       this.makingOffer = true;
       await this.peerConnection.setLocalDescription();
-      this.signalingChannel.send(this.theirId, { description: this.peerConnection.localDescription! });
+      this.signalingChannel.send(this.theirUsername, { description: this.peerConnection.localDescription! });
     } catch (err) {
       console.error(err);
     } finally {
@@ -106,7 +107,7 @@ class WebRTC {
 
   private handleTrackEvent = (event: RTCTrackEvent) => {
     const { track, streams } = event;
-    console.log("RTC Track added: ", track);
+    console.log("RTC Track added: ", track, streams);
     // track is initially muted, but becomes unmuted automatically when packets are received
     track.addEventListener("unmute", () => {
       if (this.theirVideo.srcObject) return;
@@ -116,9 +117,9 @@ class WebRTC {
 
   private handleIceCandidateEvent = (event: RTCPeerConnectionIceEvent) => {
     const { candidate } = event;
-    console.log(candidate, event);
-    if (!candidate) throw TypeError("Candidate was falsey");
-    this.signalingChannel.send(this.theirId, { candidate });
+    console.log("RTC - handleIceCandidate: ", event);
+    if (!this.theirUsername) throw TypeError("Their username was undefined.");
+    this.signalingChannel.send(this.theirUsername, { candidate });
   };
 }
 
