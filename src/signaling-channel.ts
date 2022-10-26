@@ -1,4 +1,4 @@
-import { getDatabase, set, ref as getRef, onValue } from "firebase/database";
+import { getDatabase, set, ref as getRef, onValue, remove } from "firebase/database";
 import { app } from "./firebase";
 
 type Message = { sender: string; value: string };
@@ -6,28 +6,29 @@ type Content = { description?: RTCSessionDescription; candidate?: RTCIceCandidat
 
 export class SignalingChannel {
   private db = getDatabase(app);
-  private ref: ReturnType<typeof getRef>;
   public lastMessage: Message | undefined;
   public unsubscribe: ReturnType<typeof onValue> = () => 0;
 
-  constructor(
-    private senderId = `${Math.random().toString(20).substring(3, 8)}-${Date.now()}`,
-    private roomName = "room"
-  ) {
-    this.ref = getRef(this.db, this.roomName);
+  constructor(private username: string) {
+    console.log("my id: ", this.username);
   }
 
-  public send(value: Content) {
-    const message: Message = { sender: this.senderId, value: JSON.stringify(value) };
-    set(this.ref, message);
+  public send(recipientId: string, value: Content) {
+    console.log("SIGCHAN - Recipient ID: ", recipientId);
+    if (recipientId.length < 4) throw TypeError("Recipient must have an Id greater than 4 characters.");
+    const message: Message = { sender: this.username, value: JSON.stringify(value) };
+    const ref = getRef(this.db, recipientId);
+    set(ref, message);
   }
 
-  public subscribe(callback: (message: Content) => void) {
-    this.unsubscribe = onValue(this.ref, (snapshot) => {
-      const data = snapshot.val() as Message | null;
-      if (!data) return;
-      if ((data.sender = this.senderId)) return;
-      callback(JSON.parse(data.value));
+  public subscribe(callback: (message: Content, theirUsername: string) => void) {
+    const ref = getRef(this.db, this.username);
+    remove(ref).then(() => {
+      this.unsubscribe = onValue(ref, (snapshot) => {
+        const data = snapshot.val() as Message | null;
+        if (!data) return;
+        callback(JSON.parse(data.value), data.sender);
+      });
     });
   }
 }

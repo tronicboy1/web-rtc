@@ -1,5 +1,6 @@
 import { SignalingChannel } from "./signaling-channel";
 import "./style.css";
+import "./components/register-username";
 
 class WebRTC {
   /** source: https://www.metered.ca/tools/openrelay/ */
@@ -27,56 +28,59 @@ class WebRTC {
   private myVideo = document.createElement("video");
   private theirVideo = document.createElement("video");
   private peerConnection = new RTCPeerConnection();
-  private signalingChannel = new SignalingChannel();
+  private signalingChannel: SignalingChannel;
   private ignoreOffer = false;
   private makingOffer = false;
-  private polite = true;
+  public polite = true;
+  public theirId = "";
 
-  constructor() {
+  constructor(private username: string) {
+    this.signalingChannel = new SignalingChannel(this.username);
     this.myVideo = document.querySelector<HTMLVideoElement>("video#my-video")!;
     this.theirVideo = document.querySelector<HTMLVideoElement>("video#their-video")!;
     [this.myVideo, this.theirVideo].forEach((video) => video.addEventListener("loadedmetadata", () => video.play()));
     this.preparePeerConnection();
     this.signalingChannel.subscribe(this.handleMessage);
-    this.makeOffer();
   }
 
-  private handleMessage: Parameters<InstanceType<typeof SignalingChannel>["subscribe"]>[0] = async ({
-    candidate,
-    description,
-  }) => {
-    try {
-      if (description) {
-        const offerCollision =
-          description.type === "offer" && (this.makingOffer || this.peerConnection.signalingState !== "stable");
+  private handleMessage: Parameters<InstanceType<typeof SignalingChannel>["subscribe"]>[0] = async (
+    { candidate, description },
+    theirUsername
+  ) => {
+    this.theirId = theirUsername;
+    if (description) {
+      const offerCollision =
+        description.type === "offer" && (this.makingOffer || this.peerConnection.signalingState !== "stable");
 
-        this.ignoreOffer = !this.polite && offerCollision;
-        if (this.ignoreOffer) return;
-
-        await this.peerConnection.setRemoteDescription(description);
-        if (description.type === "offer") {
-          await this.peerConnection.setLocalDescription();
-          this.signalingChannel.send({ description: this.peerConnection.localDescription! });
-        }
-      } else if (candidate) {
-        try {
-          await this.peerConnection.addIceCandidate(candidate);
-        } catch (err) {
-          if (!this.ignoreOffer) {
-            throw err;
-          }
+      console.log("offerCollision: ", offerCollision);
+      this.ignoreOffer = !this.polite && offerCollision;
+      if (this.ignoreOffer) return;
+      console.log("Remote desciption");
+      await this.peerConnection.setRemoteDescription(description);
+      if (description.type === "offer") {
+        await this.peerConnection.setLocalDescription();
+        console.log("Offer received");
+        const desciption = this.peerConnection.localDescription;
+        if (!desciption) throw TypeError("Local Description not set.");
+        this.signalingChannel.send(this.theirId, { description });
+      }
+    } else if (candidate) {
+      try {
+        await this.peerConnection.addIceCandidate(candidate);
+      } catch (err) {
+        if (!this.ignoreOffer) {
+          throw err;
         }
       }
-    } catch (err) {
-      console.error(err);
     }
   };
 
-  private async makeOffer() {
+  public async makeOffer(theirUsername: string) {
+    this.theirId = theirUsername;
     try {
       this.makingOffer = true;
       await this.peerConnection.setLocalDescription();
-      this.signalingChannel.send({ description: this.peerConnection.localDescription! });
+      this.signalingChannel.send(this.theirId, { description: this.peerConnection.localDescription! });
     } catch (err) {
       console.error(err);
     } finally {
@@ -112,9 +116,21 @@ class WebRTC {
 
   private handleIceCandidateEvent = (event: RTCPeerConnectionIceEvent) => {
     const { candidate } = event;
-    if (!candidate) throw TypeError();
-    this.signalingChannel.send({ candidate });
+    console.log(candidate, event);
+    if (!candidate) throw TypeError("Candidate was falsey");
+    this.signalingChannel.send(this.theirId, { candidate });
   };
 }
 
-new WebRTC();
+const button = document.querySelector("button")!;
+new Promise<string>((resolve) => {
+  const username = window.localStorage.getItem("username");
+  if (username) return resolve(username);
+  window.addEventListener("username-registered", (event) => resolve(event.detail), { once: true });
+}).then((username) => {
+  const webRTC = new WebRTC(username);
+  button.addEventListener("click", () => {
+    webRTC.makeOffer("test");
+    webRTC.polite = false;
+  });
+});
