@@ -20,14 +20,15 @@ new Promise<string>((resolve) => {
   inviteForm.addEventListener("invitation-sent", (event) => {
     webRTC.makeOffer(event.detail);
   });
-  return new Promise<RTCDataChannel>((resolve) => {
-    webRTC.addEventListener("datachannelopen", () => {
-      const { dataChannel } = webRTC;
-      if (!dataChannel) throw TypeError("Data Channel should not be null.");
-      resolve(dataChannel);
-    });
-  }).then((dataChannel) => {
-    const messageBox = new MessageBox(username, dataChannel);
+
+  let messageBox: MessageBox;
+  webRTC.addEventListener("datachannelopen", () => {
+    const { dataChannel } = webRTC;
+    if (!dataChannel) throw TypeError("Data Channel should not be null.");
+    if (messageBox) {
+      body.removeChild(messageBox);
+    }
+    messageBox = new MessageBox(username, dataChannel);
     body.append(messageBox);
   });
 });
