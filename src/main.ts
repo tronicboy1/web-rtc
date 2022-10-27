@@ -11,6 +11,8 @@ new Promise<string>((resolve) => {
 }).then((username) => {
   const webRTC = new WebRTC(username);
   const inviteForm = document.querySelector("invite-form")!;
+  inviteForm.myUsername = username;
+  inviteForm.show = true;
   inviteForm.addEventListener("invitation-sent", (event) => {
     webRTC.makeOffer(event.detail);
   });

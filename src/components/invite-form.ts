@@ -1,5 +1,5 @@
 import { html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 import { formStyles, preventDefault, regexPatternString } from "./shared";
 
 export const tagName = "invite-form";
@@ -11,20 +11,8 @@ export class InviteForm extends LitElement {
   private theirUsernameInputId = "their-username";
   @property({ attribute: "show", reflect: true, type: Boolean })
   public show = false;
-  @state()
-  private myUsername = "";
-
-  connectedCallback() {
-    super.connectedCallback();
-    new Promise<string>((resolve) => {
-      const hasUsername = window.localStorage.getItem("username");
-      if (hasUsername) return resolve(hasUsername);
-      window.addEventListener("username-registered", (event) => resolve(event.detail), { once: true });
-    }).then((username) => {
-      this.show = true;
-      this.myUsername = username;
-    });
-  }
+  @property({ attribute: "username", type: String })
+  public myUsername = "";
 
   @preventDefault()
   private handleSubmission(event: Event) {
