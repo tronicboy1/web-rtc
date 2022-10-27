@@ -2,8 +2,11 @@ import { css, html, LitElement } from "lit";
 import { query, customElement } from "lit/decorators.js";
 import { globalStyles } from "./components/shared";
 import { SignalingChannel } from "./signaling-channel";
+import "webrtc-adapter";
 
 export const tagName = "web-rtc";
+
+const dataChannelOpenEventName = "datachannelopen";
 
 @customElement(tagName)
 export class WebRTC extends LitElement {
@@ -35,6 +38,7 @@ export class WebRTC extends LitElement {
   private myMediaStream = new MediaStream();
   private theirMediaStream = new MediaStream();
   private peerConnection = new RTCPeerConnection();
+  public dataChannel: RTCDataChannel | null = null;
   private signalingChannel: SignalingChannel;
   public theirUsername: string | undefined;
   @query("video#my-video")
@@ -42,9 +46,9 @@ export class WebRTC extends LitElement {
   @query("video#their-video")
   private theirVideo!: HTMLVideoElement;
 
-  constructor(private username: string) {
+  constructor(private myUsername: string) {
     super();
-    this.signalingChannel = new SignalingChannel(this.username);
+    this.signalingChannel = new SignalingChannel(this.myUsername);
     this.preparePeerConnection();
     this.signalingChannel.subscribe(this.handleMessage);
   }
@@ -77,10 +81,17 @@ export class WebRTC extends LitElement {
 
   public async makeOffer(theirUsername: string) {
     this.theirUsername = theirUsername;
+    this.dataChannel = this.peerConnection.createDataChannel("messages", { negotiated: false });
+    this.dataChannel.addEventListener("error", (event) => console.error("Data Channel Error", event));
+    this.dataChannel.addEventListener("open", this.handleDataChannelOpening);
     const offer = await this.peerConnection.createOffer();
     await this.peerConnection.setLocalDescription(offer);
     this.signalingChannel.send(this.theirUsername, { description: this.peerConnection.localDescription!, offer });
   }
+
+  private handleDataChannelOpening: EventListener = () => {
+    this.dispatchEvent(new Event(dataChannelOpenEventName));
+  };
 
   private getVideoStream() {
     return navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
@@ -96,9 +107,7 @@ export class WebRTC extends LitElement {
       tracks.forEach((track) => this.peerConnection.addTrack(track, stream));
       this.peerConnection.addEventListener("track", this.handleTrackEvent);
       this.peerConnection.addEventListener("icecandidate", this.handleIceCandidateEvent);
-      this.peerConnection.addEventListener("signalingstatechange", () =>
-        console.log("Signalling State: ", this.peerConnection.signalingState)
-      );
+      this.peerConnection.addEventListener("datachannel", this.handleDataChannel);
     });
   }
 
@@ -118,6 +127,13 @@ export class WebRTC extends LitElement {
     this.signalingChannel.send(this.theirUsername, { candidate });
   };
 
+  private handleDataChannel = (event: RTCDataChannelEvent) => {
+    console.log("DataChannel Event", event);
+    this.dataChannel = event.channel;
+    this.dataChannel.addEventListener("error", (event) => console.error("Data Channel Error", event));
+    this.dataChannel.addEventListener("open", this.handleDataChannelOpening);
+  };
+
   static styles = [
     globalStyles,
     css`
@@ -127,19 +143,22 @@ export class WebRTC extends LitElement {
         max-width: 100%;
       }
 
-      #their-box {
-        flex: 0 0 80%;
+      #my-video {
+        max-width: 20vw;
+        display: block;
+        position: fixed;
+        bottom: 10vh;
+        right: 10vw;
+        z-index: 999;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
       }
 
-      #my-box {
-        flex: 1 1;
-      }
-
-      #video-box {
+      :host {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
-        width: 100%;
+        width: 90%;
         margin: 1rem auto;
         max-height: 80vh;
         padding: 1rem;
@@ -150,21 +169,16 @@ export class WebRTC extends LitElement {
   ];
 
   render() {
-    return html`<div id="video-box">
-      <div id="their-box">
-        <p>Their Video</p>
-        <video id="their-video" playsinline autoplay></video>
-      </div>
-      <div id="my-box">
-        <p>My Video</p>
-        <video id="my-video" muted playsinline autoplay></video>
-      </div>
-    </div>`;
+    return html`<video id="my-video" muted playsinline autoplay></video>
+      <video id="their-video" playsinline autoplay></video>`;
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
     [tagName]: WebRTC;
+  }
+  interface HTMLElementEventMap {
+    [dataChannelOpenEventName]: Event;
   }
 }

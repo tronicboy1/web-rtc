@@ -34,7 +34,7 @@ export class InviteForm extends LitElement {
         <input
           id="${this.theirUsernameInputId}"
           name="${this.theirUsernameInputId}"
-          type="search"
+          type="text"
           autocomplete="off"
           autocapitalize="off"
           pattern="${regexPatternString}"
