@@ -1,6 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { property, customElement } from "lit/decorators.js";
-import { globalStyles } from "shared";
+import { globalStyles } from "./shared";
 
 export const tagName = "base-modal";
 

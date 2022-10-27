@@ -1,1 +1,52 @@
-<p>auth works!</p>
+<base-modal id="email-login-modal" title="Send Login Email">
+  <form>
+    <div class="form-group">
+      <label for="email-login-email">Email</label>
+      <input id="email-login-email" name="email" type="email" required autocomplete="email" />
+    </div>
+    <button id="submit" type="submit">
+      <!-- ${this._loading ? html`
+      <loading-spinner color="white" />` : "Send Login Email"} -->
+    </button>
+  </form>
+</base-modal>
+
+<base-modal id="reset-password" title="Reset Password">
+  <form>
+    <div class="form-group">
+      <label for="reset-password-email">Email</label>
+      <input id="reset-password-email" name="email" type="email" required autocomplete="email" />
+    </div>
+    <button id="submit" type="submit">
+      <!-- ${this._loading ? html`
+      <loading-spinner color="white" />` : "Send Password Reset Email"} -->
+    </button>
+  </form>
+</base-modal>
+
+<div class="card">
+  <h1>Listo</h1>
+  <h3>An elegant List Manager</h3>
+  <div class="button-group">
+    <button ?active=${this._mode==="LOGIN" } class="button-left" id="login-button"
+      type="button">
+      Login
+    </button>
+    <button ?active=${this._mode==="REGISTER" } class="button-right"
+      id="register-button" type="button">
+      Register
+    </button>
+  </div>
+  <!-- ${this._error ? html`<p id="errors">${this._error}</p>` : ""} -->
+  <form class="login-form">
+    <!-- ${this._mode === "LOGIN" ? loginTemplate : registerTemplate} -->
+    <button id="submit" type="submit">
+      <!-- ${this._loading ? html`
+      <loading-spinner color="white" />` : "Submit"} -->
+    </button>
+  </form>
+  <div id="third-party">
+    <google-icon></google-icon>
+  </div>
+  <a>Or Sign in with only your Email Address?</a>
+</div>
