@@ -1,15 +1,18 @@
-import sharedCss from "@web-components/shared-css";
 import { css, html, LitElement } from "lit";
-import { property } from "lit/decorators.js";
+import { property, customElement } from "lit/decorators.js";
+import { globalStyles } from "shared";
 
-export default class BaseModal extends LitElement {
-  @property({ attribute: true })
-  title: string = "";
+export const tagName = "base-modal";
+
+@customElement(tagName)
+export class BaseModal extends LitElement {
+  @property({ attribute: "modal-title" })
+  modalTitle: string = "";
   @property({ attribute: true, reflect: true, type: Boolean })
   show: boolean = false;
 
   static styles = [
-    sharedCss,
+    globalStyles,
     css`
       :host([show]) #backdrop {
         display: flex;
@@ -92,7 +95,7 @@ export default class BaseModal extends LitElement {
       <div @mousedown=${this.#closeModal} id="backdrop" class="modal">
         <div @mousedown=${this.#stopPropagation} id="modal-container">
           <header>
-            <h1 id="title">${this.title}</h1>
+            <h1 id="title">${this.modalTitle}</h1>
             <svg
               @click=${this.#closeModal}
               xmlns="http://www.w3.org/2000/svg"
@@ -112,5 +115,11 @@ export default class BaseModal extends LitElement {
         </div>
       </div>
     `;
+  }
+}
+
+declare global {
+  interface HTMLElemenTagNamMap {
+    [tagName]: BaseModal;
   }
 }

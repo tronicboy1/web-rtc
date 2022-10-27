@@ -1,8 +1,8 @@
 import { css, html, LitElement } from "lit";
 import { query, customElement } from "lit/decorators.js";
-import { globalStyles } from "./components/shared";
-import { SignalingChannel } from "./signaling-channel";
+import { SignalingChannel } from "../lib/signaling-channel";
 import "webrtc-adapter";
+import { globalStyles } from "shared";
 
 export const tagName = "web-rtc";
 
