@@ -1,5 +1,6 @@
-import { css, html, LitElement } from "lit";
+import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { formStyles, regexPatternString } from "./shared";
 
 export const tagName = "register-username";
 
@@ -18,7 +19,6 @@ export class RegisterUsername extends LitElement {
   }
 
   private handleSubmit: EventListener = (event) => {
-    event.preventDefault();
     const target = event.currentTarget;
     if (!(target instanceof HTMLFormElement)) throw TypeError("Event not from form element.");
     const formData = new FormData(target);
@@ -33,25 +33,7 @@ export class RegisterUsername extends LitElement {
     window.dispatchEvent(usernameRegisteredEvent);
   }
 
-  static styles = [
-    css`
-      :host {
-        display: none;
-      }
-      :host([show]) {
-        display: block;
-      }
-
-      form {
-        display: flex;
-        flex-direction: column;
-      }
-
-      form input {
-        margin-bottom: 1rem;
-      }
-    `,
-  ];
+  static styles = [formStyles];
 
   render() {
     return html`<form @submit=${this.handleSubmit} id="login">
@@ -61,7 +43,7 @@ export class RegisterUsername extends LitElement {
         name="username"
         id="username"
         required
-        pattern="[a-zA-Z0-9]{4,10}"
+        pattern="${regexPatternString}"
         minlength="4"
         maxlength="10"
       />

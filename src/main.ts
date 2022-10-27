@@ -1,6 +1,7 @@
 import { SignalingChannel } from "./signaling-channel";
 import "./style.css";
 import "./components/register-username";
+import "./components/invite-form";
 import "webrtc-adapter";
 
 class WebRTC {
@@ -28,9 +29,11 @@ class WebRTC {
 
   private myVideo = document.createElement("video");
   private theirVideo = document.createElement("video");
+  private theirMediaStream = new MediaStream();
   private peerConnection = new RTCPeerConnection();
   private signalingChannel: SignalingChannel;
   private ignoreOffer = false;
+  //@ts-ignore
   private makingOffer = false;
   public polite = true;
   public theirUsername: string | undefined;
@@ -45,27 +48,35 @@ class WebRTC {
   }
 
   private handleMessage: Parameters<InstanceType<typeof SignalingChannel>["subscribe"]>[0] = async (
-    { candidate, description },
+    { candidate, description, offer, answer },
     theirUsername
   ) => {
     this.theirUsername = theirUsername;
-    if (description) {
-      const offerCollision =
-        description.type === "offer" && (this.makingOffer || this.peerConnection.signalingState !== "stable");
-      console.log("offerCollision: ", offerCollision);
-      this.ignoreOffer = !this.polite && offerCollision;
-      if (this.ignoreOffer) return;
+    console.log("Message received: ", candidate, description)
+    if (offer) {
+      console.log("Offer received", offer);
+      await this.peerConnection.setRemoteDescription(offer);
+      const answer = await this.peerConnection.createAnswer();
+      await this.peerConnection.setLocalDescription(answer);
+      const desciption = this.peerConnection.localDescription;
+      if (!desciption) throw TypeError("Local Description not set.");
+      return this.signalingChannel.send(this.theirUsername, { description, answer });
+    }
+    if (answer) {
+      await this.peerConnection.setRemoteDescription(answer);
+    }
+    // if (description) {
+    //   const offerCollision =
+    //     description.type === "offer" && (this.makingOffer || this.peerConnection.signalingState !== "stable");
+    //   console.log("offerCollision: ", offerCollision);
+    //   this.ignoreOffer = !this.polite && offerCollision;
+    //   if (this.ignoreOffer) return;
 
-      console.log("Remote desciption");
-      await this.peerConnection.setRemoteDescription(description);
-      if (description.type === "offer") {
-        await this.peerConnection.setLocalDescription();
-        console.log("Offer received");
-        const desciption = this.peerConnection.localDescription;
-        if (!desciption) throw TypeError("Local Description not set.");
-        this.signalingChannel.send(this.theirUsername, { description });
-      }
-    } else if (candidate) {
+    //   console.log("Remote desciption");
+    //   await this.peerConnection.setRemoteDescription(description);
+
+    // }
+    if (candidate) {
       try {
         await this.peerConnection.addIceCandidate(candidate);
       } catch (err) {
@@ -80,8 +91,9 @@ class WebRTC {
     this.theirUsername = theirUsername;
     try {
       this.makingOffer = true;
-      await this.peerConnection.setLocalDescription();
-      this.signalingChannel.send(this.theirUsername, { description: this.peerConnection.localDescription! });
+      const offer = await this.peerConnection.createOffer();
+      await this.peerConnection.setLocalDescription(offer);
+      this.signalingChannel.send(this.theirUsername, { description: this.peerConnection.localDescription!, offer });
     } catch (err) {
       console.error(err);
     } finally {
@@ -90,18 +102,21 @@ class WebRTC {
   }
 
   private getVideoStream() {
-    return navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    return navigator.mediaDevices.getUserMedia({ video: true, audio: true });
   }
 
   private preparePeerConnection() {
     return this.getVideoStream().then((stream) => {
       this.myVideo.srcObject = stream;
+      this.theirVideo.srcObject = this.theirMediaStream;
       this.peerConnection = new RTCPeerConnection({ iceServers: WebRTC.iceServers });
       const tracks = stream.getTracks();
-      tracks.forEach((track) => this.peerConnection.addTrack(track));
+      tracks.forEach((track) => this.peerConnection.addTrack(track, stream));
       this.peerConnection.addEventListener("track", this.handleTrackEvent);
       this.peerConnection.addEventListener("icecandidate", this.handleIceCandidateEvent);
-      console.log("Peer Connection prepped.", this.peerConnection);
+      this.peerConnection.addEventListener("signalingstatechange", () =>
+        console.log("Signalling State: ", this.peerConnection.signalingState)
+      );
     });
   }
 
@@ -109,29 +124,29 @@ class WebRTC {
     const { track, streams } = event;
     console.log("RTC Track added: ", track, streams);
     // track is initially muted, but becomes unmuted automatically when packets are received
-    track.addEventListener("unmute", () => {
-      if (this.theirVideo.srcObject) return;
-      this.theirVideo.srcObject = streams[0];
-    });
+    //track.addEventListener("unmute", () => {
+    this.theirMediaStream.addTrack(track);
+    //});
   };
 
   private handleIceCandidateEvent = (event: RTCPeerConnectionIceEvent) => {
     const { candidate } = event;
+    if (!candidate) return;
     console.log("RTC - handleIceCandidate: ", event);
     if (!this.theirUsername) throw TypeError("Their username was undefined.");
     this.signalingChannel.send(this.theirUsername, { candidate });
   };
 }
 
-const button = document.querySelector("button")!;
 new Promise<string>((resolve) => {
   const username = window.localStorage.getItem("username");
   if (username) return resolve(username);
   window.addEventListener("username-registered", (event) => resolve(event.detail), { once: true });
 }).then((username) => {
   const webRTC = new WebRTC(username);
-  button.addEventListener("click", () => {
-    webRTC.makeOffer("test");
+  const inviteForm = document.querySelector("invite-form")!;
+  inviteForm.addEventListener("invitation-sent", (event) => {
+    webRTC.makeOffer(event.detail);
     webRTC.polite = false;
   });
 });
