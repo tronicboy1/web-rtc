@@ -43,6 +43,8 @@ export class RegisterUsername extends LitElement {
         name="username"
         id="username"
         required
+        autocomplete="username"
+        autocapitalize="off"
         pattern="${regexPatternString}"
         minlength="4"
         maxlength="10"
