@@ -23,6 +23,7 @@ export const formStyles = css`
     display: none;
     max-width: 500px;
     margin: 1rem auto;
+    --border-color: #e1e1e1;
   }
   :host([show]) {
     display: block;
@@ -33,7 +34,15 @@ export const formStyles = css`
     flex-direction: column;
   }
 
-  form input {
+  form input,button {
     margin-bottom: 1rem;
+    height: 35px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+  }
+
+  button {
+    background-color: var(--border-color);
+    cursor: pointer;
   }
 `;

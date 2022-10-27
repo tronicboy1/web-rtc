@@ -1,20 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
-  </head>
-  <body>
-    <h1>Web RTC test</h1>
-    <register-username></register-username>
-    <invite-form></invite-form>
-    <img >
-    <video id="their-video" playsinline autoplay></video>
-    <video id="my-video" muted playsinline autoplay></video>
-    <div id="app"></div>
-    <web-rotc></web-rotc>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vite + TS</title>
+</head>
+
+<body>
+  <h1>Web RTC test</h1>
+  <register-username></register-username>
+  <invite-form></invite-form>
+  <img>
+  <div id="video-box">
+    <div>
+      <p>Their Video</p>
+      <video id="their-video" playsinline autoplay></video>
+    </div>
+    <div>
+      <p>My Video</p>
+      <video id="my-video" muted playsinline autoplay></video>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
 </html>
