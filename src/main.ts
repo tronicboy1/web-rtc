@@ -32,7 +32,6 @@ class WebRTC {
   private theirMediaStream = new MediaStream();
   private peerConnection = new RTCPeerConnection();
   private signalingChannel: SignalingChannel;
-  private ignoreOffer = false;
   //@ts-ignore
   private makingOffer = false;
   public polite = true;
@@ -52,7 +51,6 @@ class WebRTC {
     theirUsername
   ) => {
     this.theirUsername = theirUsername;
-    console.log("Message received: ", candidate, description)
     if (offer) {
       console.log("Offer received", offer);
       await this.peerConnection.setRemoteDescription(offer);
@@ -63,27 +61,12 @@ class WebRTC {
       return this.signalingChannel.send(this.theirUsername, { description, answer });
     }
     if (answer) {
+      console.log("Answer Received: ", answer);
       await this.peerConnection.setRemoteDescription(answer);
     }
-    // if (description) {
-    //   const offerCollision =
-    //     description.type === "offer" && (this.makingOffer || this.peerConnection.signalingState !== "stable");
-    //   console.log("offerCollision: ", offerCollision);
-    //   this.ignoreOffer = !this.polite && offerCollision;
-    //   if (this.ignoreOffer) return;
-
-    //   console.log("Remote desciption");
-    //   await this.peerConnection.setRemoteDescription(description);
-
-    // }
     if (candidate) {
-      try {
-        await this.peerConnection.addIceCandidate(candidate);
-      } catch (err) {
-        if (!this.ignoreOffer) {
-          throw err;
-        }
-      }
+      console.log("Candidate received: ", candidate);
+      await this.peerConnection.addIceCandidate(candidate);
     }
   };
 
@@ -124,9 +107,9 @@ class WebRTC {
     const { track, streams } = event;
     console.log("RTC Track added: ", track, streams);
     // track is initially muted, but becomes unmuted automatically when packets are received
-    //track.addEventListener("unmute", () => {
-    this.theirMediaStream.addTrack(track);
-    //});
+    track.addEventListener("unmute", () => {
+      this.theirMediaStream.addTrack(track);
+    });
   };
 
   private handleIceCandidateEvent = (event: RTCPeerConnectionIceEvent) => {
