@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "allowJs": true,
+    "strict": true,
+    "sourceMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "incremental": true,
+    "baseUrl": "./",
+    "allowSyntheticDefaultImports": true,
+    "noImplicitOverride": false,
+  },
+  "extends": "../../../tsconfig.json"
+}

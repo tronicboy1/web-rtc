@@ -6,7 +6,8 @@
     "paths": {
       "@custom-firebase/*": ["src/firebase/*"],
       "@lib/*": ["src/lib/*"],
-      "@services/*": ["src/app/services/*"]
+      "@services/*": ["src/app/services/*"],
+      "@web-components/*": ["src/web-components/*"]
     },
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
