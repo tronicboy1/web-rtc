@@ -15,7 +15,7 @@ export class MessageBox extends LitElement {
 
   constructor(
     private myUsername: string,
-    private dataChannel: ReturnType<InstanceType<typeof RTCPeerConnection>["createDataChannel"]>
+    private dataChannel: ReturnType<InstanceType<typeof RTCPeerConnection>["createDataChannel"]>,
   ) {
     super();
   }

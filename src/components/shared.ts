@@ -6,7 +6,7 @@ export function preventDefault() {
   return function (
     _target: any,
     _propertyKey: string,
-    descriptor: PropertyDescriptor
+    descriptor: PropertyDescriptor,
   ): void | TypedPropertyDescriptor<EventListener> {
     const originalMethod: Function = descriptor.value;
     if (!(originalMethod instanceof Function)) return;

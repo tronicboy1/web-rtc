@@ -60,7 +60,7 @@ export class WebRTC extends LitElement {
 
   private handleMessage: Parameters<InstanceType<typeof SignalingChannel>["subscribe"]>[0] = async (
     { candidate, description, offer, answer },
-    theirUsername
+    theirUsername,
   ) => {
     this.theirUsername = theirUsername;
     if (offer) {
