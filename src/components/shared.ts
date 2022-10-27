@@ -34,7 +34,8 @@ export const formStyles = css`
     flex-direction: column;
   }
 
-  form input,button {
+  form input,
+  button {
     margin-bottom: 1rem;
     height: 35px;
     border-radius: 4px;
@@ -44,5 +45,12 @@ export const formStyles = css`
   button {
     background-color: var(--border-color);
     cursor: pointer;
+  }
+`;
+
+export const globalStyles = css`
+  * {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
   }
 `;

@@ -1,6 +1,6 @@
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { formStyles, regexPatternString } from "./shared";
+import { formStyles, globalStyles, regexPatternString } from "./shared";
 
 export const tagName = "register-username";
 
@@ -33,7 +33,7 @@ export class RegisterUsername extends LitElement {
     window.dispatchEvent(usernameRegisteredEvent);
   }
 
-  static styles = [formStyles];
+  static styles = [formStyles, globalStyles];
 
   render() {
     return html`<form @submit=${this.handleSubmit} id="login">

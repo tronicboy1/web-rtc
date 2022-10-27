@@ -1,42 +1,57 @@
+import { css, html, LitElement } from "lit";
+import { query, customElement } from "lit/decorators.js";
+import { globalStyles } from "./components/shared";
 import { SignalingChannel } from "./signaling-channel";
 
-export class WebRTC {
-  /** source: https://www.metered.ca/tools/openrelay/ */
+export const tagName = "web-rtc";
+
+@customElement(tagName)
+export class WebRTC extends LitElement {
+  /**
+   * source: https://www.metered.ca/tools/openrelay/
+   * The TURN servers are not necessary in most cases.
+   */
   static iceServers = [
-    {
-      urls: "stun:openrelay.metered.ca:80",
-    },
-    {
-      urls: "turn:openrelay.metered.ca:80",
-      username: "openrelayproject",
-      credential: "openrelayproject",
-    },
-    {
-      urls: "turn:openrelay.metered.ca:443",
-      username: "openrelayproject",
-      credential: "openrelayproject",
-    },
-    {
-      urls: "turn:openrelay.metered.ca:443?transport=tcp",
-      username: "openrelayproject",
-      credential: "openrelayproject",
-    },
+    // {
+    //   urls: "stun:openrelay.metered.ca:80",
+    // },
+    // {
+    //   urls: "turn:openrelay.metered.ca:80",
+    //   username: "openrelayproject",
+    //   credential: "openrelayproject",
+    // },
+    // {
+    //   urls: "turn:openrelay.metered.ca:443",
+    //   username: "openrelayproject",
+    //   credential: "openrelayproject",
+    // },
+    // {
+    //   urls: "turn:openrelay.metered.ca:443?transport=tcp",
+    //   username: "openrelayproject",
+    //   credential: "openrelayproject",
+    // },
   ];
 
-  private myVideo = document.createElement("video");
-  private theirVideo = document.createElement("video");
+  private myMediaStream = new MediaStream();
   private theirMediaStream = new MediaStream();
   private peerConnection = new RTCPeerConnection();
   private signalingChannel: SignalingChannel;
   public theirUsername: string | undefined;
+  @query("video#my-video")
+  private myVideo!: HTMLVideoElement;
+  @query("video#their-video")
+  private theirVideo!: HTMLVideoElement;
 
   constructor(private username: string) {
+    super();
     this.signalingChannel = new SignalingChannel(this.username);
-    this.myVideo = document.querySelector<HTMLVideoElement>("video#my-video")!;
-    this.theirVideo = document.querySelector<HTMLVideoElement>("video#their-video")!;
-    [this.myVideo, this.theirVideo].forEach((video) => video.addEventListener("loadedmetadata", () => video.play()));
     this.preparePeerConnection();
     this.signalingChannel.subscribe(this.handleMessage);
+  }
+
+  firstUpdated() {
+    this.myVideo.srcObject = this.myMediaStream;
+    [this.myVideo, this.theirVideo].forEach((video) => video.addEventListener("loadedmetadata", () => video.play()));
   }
 
   private handleMessage: Parameters<InstanceType<typeof SignalingChannel>["subscribe"]>[0] = async (
@@ -68,13 +83,14 @@ export class WebRTC {
   }
 
   private getVideoStream() {
-    return navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    return navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+      stream.getTracks().forEach((track) => this.myMediaStream.addTrack(track));
+      return stream;
+    });
   }
 
   private preparePeerConnection() {
     return this.getVideoStream().then((stream) => {
-      this.myVideo.srcObject = stream;
-      this.theirVideo.srcObject = this.theirMediaStream;
       this.peerConnection = new RTCPeerConnection({ iceServers: WebRTC.iceServers });
       const tracks = stream.getTracks();
       tracks.forEach((track) => this.peerConnection.addTrack(track, stream));
@@ -88,6 +104,7 @@ export class WebRTC {
 
   private handleTrackEvent = (event: RTCTrackEvent) => {
     const { track } = event;
+    this.theirVideo.srcObject ||= this.theirMediaStream;
     // track is initially muted, but becomes unmuted automatically when packets are received
     track.addEventListener("unmute", () => {
       this.theirMediaStream.addTrack(track);
@@ -100,4 +117,54 @@ export class WebRTC {
     if (!this.theirUsername) throw TypeError("Their username was undefined.");
     this.signalingChannel.send(this.theirUsername, { candidate });
   };
+
+  static styles = [
+    globalStyles,
+    css`
+      video {
+        height: auto;
+        width: auto;
+        max-width: 100%;
+      }
+
+      #their-box {
+        flex: 0 0 80%;
+      }
+
+      #my-box {
+        flex: 1 1;
+      }
+
+      #video-box {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+        margin: 1rem auto;
+        max-height: 80vh;
+        padding: 1rem;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.112);
+        border-radius: 4px;
+      }
+    `,
+  ];
+
+  render() {
+    return html`<div id="video-box">
+      <div id="their-box">
+        <p>Their Video</p>
+        <video id="their-video" playsinline autoplay></video>
+      </div>
+      <div id="my-box">
+        <p>My Video</p>
+        <video id="my-video" muted playsinline autoplay></video>
+      </div>
+    </div>`;
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    [tagName]: WebRTC;
+  }
 }

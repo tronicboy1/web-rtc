@@ -1,6 +1,6 @@
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { formStyles, preventDefault, regexPatternString } from "./shared";
+import { formStyles, globalStyles, preventDefault, regexPatternString } from "./shared";
 
 export const tagName = "invite-form";
 
@@ -22,10 +22,10 @@ export class InviteForm extends LitElement {
     const theirUsername = formData.get(this.theirUsernameInputId)!.toString().trim();
     const invitationSentEvent = new CustomEvent(invitationSentEventName, { detail: theirUsername, bubbles: true });
     this.dispatchEvent(invitationSentEvent);
-    target.reset();
+    this.blur();
   }
 
-  static styles = [formStyles];
+  static styles = [formStyles, globalStyles];
 
   render() {
     return html` <h3><small>My Username:</small> <strong>${this.myUsername}</strong></h3>
@@ -35,6 +35,7 @@ export class InviteForm extends LitElement {
           id="${this.theirUsernameInputId}"
           name="${this.theirUsernameInputId}"
           type="text"
+          autocomplete="username"
           pattern="${regexPatternString}"
           required
         />

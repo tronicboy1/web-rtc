@@ -14,9 +14,7 @@ export class SignalingChannel {
   public lastMessage: Message | undefined;
   public unsubscribe: ReturnType<typeof onValue> = () => 0;
 
-  constructor(private myUsername: string) {
-    console.log("my id: ", this.myUsername);
-  }
+  constructor(private myUsername: string) {}
 
   public send(theirUsername: string, value: Content) {
     if (!theirUsername || typeof theirUsername !== "string" || theirUsername.length < 4)

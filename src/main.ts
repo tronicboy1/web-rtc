@@ -2,6 +2,7 @@ import "./style.css";
 import "./components/register-username";
 import "./components/invite-form";
 import "webrtc-adapter";
+import "./web-rtc";
 import { WebRTC } from "./web-rtc";
 
 new Promise<string>((resolve) => {
@@ -10,6 +11,7 @@ new Promise<string>((resolve) => {
   window.addEventListener("username-registered", (event) => resolve(event.detail), { once: true });
 }).then((username) => {
   const webRTC = new WebRTC(username);
+  document.querySelector("body")!.append(webRTC);
   const inviteForm = document.querySelector("invite-form")!;
   inviteForm.myUsername = username;
   inviteForm.show = true;
