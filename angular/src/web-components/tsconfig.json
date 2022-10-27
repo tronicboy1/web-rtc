@@ -15,5 +15,5 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitOverride": false,
   },
-  "extends": "../../../tsconfig.json"
+  "extends": "../../tsconfig.json"
 }
