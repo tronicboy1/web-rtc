@@ -3,6 +3,8 @@ import { AuthService } from "@services/auth.service";
 import "@web-components/base-modal";
 import "@web-components/loading-spinner";
 import "@web-components/google-icon";
+import { ActivatedRoute, Router } from "@angular/router";
+import { FirebaseError } from "firebase/app";
 
 type AuthNavModes = "LOGIN" | "REGISTER";
 
@@ -18,7 +20,7 @@ export class AuthComponent implements OnInit {
   public error = "";
   public loading = false;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private route: ActivatedRoute, private router: Router) {}
 
   ngOnInit(): void {}
 
@@ -26,6 +28,18 @@ export class AuthComponent implements OnInit {
     const formData = this.getFormData(event);
     const email = formData.get("email")!.toString().trim();
     const password = formData.get("password")!.toString().trim();
+    const loginPromise =
+      this.mode === "LOGIN"
+        ? this.authService.signInUser(email, password)
+        : this.authService.createUser(email, password);
+    this.setLoading(loginPromise)
+      .then(() => {
+        this.router.navigateByUrl("/contacts");
+      })
+      .catch((error) => {
+        if (!(error instanceof FirebaseError)) return;
+        this.error = error.message;
+      });
   };
 
   public handleSendEmailSubmit: EventListener = (event) => {
@@ -45,7 +59,7 @@ export class AuthComponent implements OnInit {
     return new FormData(target);
   }
 
-  private setLoading(promise: Promise<any>) {
+  private setLoading<T>(promise: Promise<T>) {
     this.loading = true;
     return Promise.resolve(promise).finally(() => (this.loading = false));
   }
