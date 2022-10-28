@@ -32,12 +32,18 @@ button {
 }
 
 ul {
-  margin-top: 1rem;
+  margin: 1rem 0 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   max-height: 80vh;
   overflow-y: auto;
+}
+
+#delete-confirm {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 2rem;
 }
 
 li {
@@ -49,17 +55,34 @@ li {
   border: 1px var(--secondary-color) solid;
   background: var(--secondary-color);
   border-radius: 8px;
-  padding: 1.25rem 0.5rem;
+  padding: 1.25rem 1rem;
   transition: all 0.2s;
   margin-bottom: 0.5rem;
   text-align: center;
   font-size: 1.8rem;
   user-select: none;
   -webkit-user-select: none;
+  overflow-x: scroll;
+}
+li:last-child {
+  margin-bottom: 0;
+}
+
+li span {
+  flex: 0 0 50%;
+  text-align: left;
+  padding-right: 4px;
+  word-wrap: break-word;
+  max-width: 50%;
 }
 
 li button {
-  flex-shrink: 1;
+  flex: 1 1 90%;
+  margin-right: 4px;
+}
+
+li button:last-child {
+  margin: 0;
 }
 
 form:invalid button {

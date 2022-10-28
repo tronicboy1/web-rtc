@@ -6,9 +6,10 @@ import { AppComponent } from "./app.component";
 import { AuthComponent } from "./pages/auth/auth.component";
 import { PageNotFoundComponent } from "./page-not-found/page-not-found.component";
 import { ContactsComponent } from './pages/contacts/contacts.component';
+import { CallComponent } from './pages/call/call.component';
 
 @NgModule({
-  declarations: [AppComponent, AuthComponent, PageNotFoundComponent, ContactsComponent],
+  declarations: [AppComponent, AuthComponent, PageNotFoundComponent, ContactsComponent, CallComponent],
   imports: [BrowserModule, AppRoutingModule],
   providers: [],
   bootstrap: [AppComponent],
