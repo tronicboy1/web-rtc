@@ -29,7 +29,6 @@ export class CallService {
   }
 
   public send(theirUid: string, value: Content, isVideo: boolean) {
-    console.log("SEND: ", value);
     if (!this.myUid) throw Error("Email not set.");
     if (!theirUid || typeof theirUid !== "string" || theirUid.length < 4)
       throw TypeError("Recipient must have an Id greater than 4 characters.");

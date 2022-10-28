@@ -70,7 +70,11 @@ export class RtcService {
       await this.peerConnection.setRemoteDescription(answer);
     }
     if (candidate) {
-      await this.peerConnection.addIceCandidate(candidate);
+      try {
+        await this.peerConnection.addIceCandidate(candidate);
+      } catch {
+        console.log("Add ice candidate error was ignored.");
+      }
     }
   };
 
