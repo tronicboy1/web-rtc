@@ -1,5 +1,7 @@
 <div class="card">
   <h1>{{this.isVideo ? "Video" : "Audio"}} Call</h1>
 </div>
-<div [class.hide]="!this.isVideo" class="card"><video id="their-video" playsinline autoplay #theirVideo></video></div>
+<div [class.hide]="!this.isVideo" class="card">
+  <video id="their-video" playsinline muted autoplay #theirVideo></video>
+</div>
 <video id="my-video" muted playsinline autoplay #myVideo></video>

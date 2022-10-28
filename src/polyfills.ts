@@ -18,6 +18,10 @@
  * BROWSER POLYFILLS
  */
 
+/**
+ * Improve browser support for web rtc.
+ * https://github.com/webrtcHacks/adapter
+ */
 import "webrtc-adapter";
 
 /**
