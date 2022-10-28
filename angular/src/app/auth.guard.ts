@@ -16,6 +16,7 @@ export class AuthGuard implements CanActivate {
     return this.authService.getAuthState().pipe(
       map((user) => {
         const isAuth = Boolean(user);
+        /** to be fixed : https://github.com/angular/angular/issues/16211 */
         if (!isAuth) this.router.navigateByUrl("/auth");
         return isAuth;
       }),

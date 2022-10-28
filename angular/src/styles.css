@@ -25,7 +25,15 @@ code {
   --highlight-color: rgb(0, 140, 255);
   --highlight-hover: rgb(26, 152, 255);
   --danger-color: rgb(255, 94, 94);
+  --danger-color-hover: rgb(255, 105, 105);
   --warning-color: rgb(255, 250, 211);
+  --radius: 4px;
+}
+
+svg {
+  width: auto;
+  height: 100%;
+  fill: var(--primary-color);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -48,8 +56,8 @@ code {
   :root {
     --primary-color: rgb(85, 85, 85);
     --secondary-color: rgb(132, 132, 132);
-    --highlight-color: rgb(0, 140, 255);
-    --highlight-hover: rgb(26, 152, 255);
+    --highlight-color: rgb(112, 191, 255);
+    --highlight-hover: rgb(131, 199, 255);
     --warning-color: rgb(105, 95, 23);
     color: white;
   }
@@ -76,4 +84,14 @@ code {
 
 .card[loading] {
   opacity: 0;
+}
+
+.delete {
+  background-color: var(--danger-color) !important;
+  border: 1px solid var(--danger-color) !important;
+}
+
+.delete:hover {
+  background-color: var(--danger-color-hover) !important;
+  border: 1px solid var(--danger-color-hover) !important;
 }

@@ -9,6 +9,7 @@ import {
   sendPasswordResetEmail,
   signOut,
   updatePassword,
+  fetchSignInMethodsForEmail,
 } from "firebase/auth";
 import { Observable } from "rxjs";
 import type { User } from "firebase/auth";
@@ -62,6 +63,13 @@ export class AuthService {
         observer.next(user);
       });
       return unsubscribe;
+    });
+  }
+
+  public checkIfUserExists(email: string) {
+    return fetchSignInMethodsForEmail(this.auth, email).then((result) => {
+      if (!(result instanceof Array)) return false;
+      return Boolean(result.length);
     });
   }
 }

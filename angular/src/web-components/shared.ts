@@ -54,10 +54,6 @@ export const globalStyles = css`
     font-family: Arial, sans-serif;
   }
 
-  * {
-    box-sizing: border-box;
-  }
-
   :host {
     --primary-color: white;
     --secondary-color: rgb(218, 218, 218);

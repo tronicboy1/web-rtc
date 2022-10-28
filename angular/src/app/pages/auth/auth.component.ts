@@ -5,6 +5,7 @@ import "@web-components/loading-spinner";
 import "@web-components/google-icon";
 import { ActivatedRoute, Router } from "@angular/router";
 import { FirebaseError } from "firebase/app";
+import { Utils } from "src/app/utils";
 
 type AuthNavModes = "LOGIN" | "REGISTER";
 
@@ -25,7 +26,7 @@ export class AuthComponent implements OnInit {
   ngOnInit(): void {}
 
   public handleLoginSubmit: EventListener = (event) => {
-    const formData = this.getFormData(event);
+    const { formData } = Utils.getFormData(event);
     const email = formData.get("email")!.toString().trim();
     const password = formData.get("password")!.toString().trim();
     const loginPromise =
@@ -38,23 +39,16 @@ export class AuthComponent implements OnInit {
   };
 
   public handleSendEmailSubmit: EventListener = (event) => {
-    const formData = this.getFormData(event);
+    const { formData } = Utils.getFormData(event);
     const email = formData.get("email")!.toString().trim();
     this.setLoading(this.authService.sendSignInEmail(email)).then(() => (this.showSendEmailModal = false));
   };
 
   public handleResetPasswordSubmit: EventListener = (event) => {
-    const formData = this.getFormData(event);
+    const { formData } = Utils.getFormData(event);
     const email = formData.get("email")!.toString().trim();
     this.setLoading(this.authService.sendPasswordResetEmail(email)).then(() => (this.showResetPasswordModal = false));
   };
-
-  private getFormData(event: Event) {
-    event.preventDefault();
-    const target = event.currentTarget;
-    if (!(target instanceof HTMLFormElement)) throw TypeError("Must be used with HTMLFormElement.");
-    return new FormData(target);
-  }
 
   private setLoading<T>(promise: Promise<T>) {
     this.loading = true;
