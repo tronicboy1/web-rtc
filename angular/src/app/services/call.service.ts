@@ -2,16 +2,16 @@ import { Injectable } from "@angular/core";
 import { app } from "@custom-firebase/firebase";
 import { AuthService } from "./auth.service";
 import { getDatabase, set, ref as getRef, onValue, remove } from "firebase/database";
-import { Observable } from "rxjs";
+import { filter, Observable } from "rxjs";
 
-type Message = { sender: string; value: string; isVideo: boolean };
+type Message = CallInvitation & { value: string };
 type Content = {
   description?: RTCSessionDescription;
   candidate?: RTCIceCandidate | null;
   offer?: RTCSessionDescriptionInit;
   answer?: RTCSessionDescriptionInit;
 };
-export type CallInvitation = { sender: string; value: Content; isVideo: boolean };
+export type CallInvitation = { sender: string; value: Content; isVideo?: boolean };
 
 @Injectable({
   providedIn: "root",
@@ -19,6 +19,7 @@ export type CallInvitation = { sender: string; value: Content; isVideo: boolean 
 export class CallService {
   private db = getDatabase(app);
   private myUid: string | null = null;
+  public lastOffer?: CallInvitation;
 
   constructor(private authService: AuthService) {
     this.authService.getUid().subscribe((uid) => {
@@ -26,7 +27,7 @@ export class CallService {
     });
   }
 
-  public send(theirUid: string, value: Content, isVideo = true) {
+  public send(theirUid: string, value: Content, isVideo = false) {
     if (!this.myUid) throw Error("Email not set.");
     if (!theirUid || typeof theirUid !== "string" || theirUid.length < 4)
       throw TypeError("Recipient must have an Id greater than 4 characters.");
@@ -35,19 +36,20 @@ export class CallService {
     set(ref, message);
   }
 
-  public watchForInvitations() {
+  public watch() {
     if (!this.myUid) throw Error("Email not set.");
     const ref = getRef(this.db, this.myUid);
     return new Observable<CallInvitation>((observer) => {
-      let unsubscribe = () => {};
-      remove(ref).then(() => {
-        unsubscribe = onValue(ref, (snapshot) => {
-          const data = snapshot.val() as Message | null;
-          if (!data) return;
-          observer.next({ ...data, value: JSON.parse(data.value) });
-        });
+      let unsubscribe = onValue(ref, (snapshot) => {
+        const data = snapshot.val() as Message | null;
+        if (!data) return;
+        observer.next({ ...data, value: JSON.parse(data.value) });
       });
       return unsubscribe;
     });
+  }
+
+  public watchForInvitations() {
+    return this.watch().pipe(filter((data) => Boolean(data.value.offer)));
   }
 }

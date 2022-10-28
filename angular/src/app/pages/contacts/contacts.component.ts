@@ -4,6 +4,7 @@ import { Subscription } from "rxjs";
 import { Utils } from "src/app/utils";
 import "@web-components/base-modal";
 import { Router } from "@angular/router";
+import { CallQueryParameters } from "src/app/app-routing.module";
 
 @Component({
   selector: "app-contacts",
@@ -47,12 +48,14 @@ export class ContactsComponent implements OnInit {
       .finally(() => (this.loading = false));
   }
 
-  public handleAudioCallClick = (email: string) => {
-    this.router.navigate(["/call"], { queryParams: { email, isVideo: false, polite: false } });
+  public handleAudioCallClick = (uid: string) => {
+    const queryParams: CallQueryParameters = { "their-uid": uid, "is-video": 0, polite: false };
+    this.router.navigate(["/call"], { queryParams });
   };
 
-  public handleVideoCallClick = (email: string) => {
-    this.router.navigate(["/call"], { queryParams: { email, isVideo: true, polite: false } });
+  public handleVideoCallClick = (uid: string) => {
+    const queryParams: CallQueryParameters = { "their-uid": uid, "is-video": 1, polite: false };
+    this.router.navigate(["/call"], { queryParams });
   };
 
   public handlContactTileDeleteClick = (email: string) => (this.emailToDelete = email);
