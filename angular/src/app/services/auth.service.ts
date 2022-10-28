@@ -4,9 +4,11 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithEmailLink,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signOut,
-  updatePassword
+  updatePassword,
 } from "firebase/auth";
 import { Observable } from "rxjs";
 import type { User } from "firebase/auth";
@@ -32,6 +34,14 @@ export class AuthService {
       this.user = creds.user;
       return creds;
     });
+  }
+
+  public sendSignInEmail(email: string) {
+    return signInWithEmailLink(this.auth, email);
+  }
+
+  public sendPasswordResetEmail(email: string) {
+    return sendPasswordResetEmail(this.auth, email);
   }
 
   public changePassword(email: string, password: string, newPassword: string) {

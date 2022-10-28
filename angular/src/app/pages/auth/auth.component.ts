@@ -32,24 +32,21 @@ export class AuthComponent implements OnInit {
       this.mode === "LOGIN"
         ? this.authService.signInUser(email, password)
         : this.authService.createUser(email, password);
-    this.setLoading(loginPromise)
-      .then(() => {
-        this.router.navigateByUrl("/contacts");
-      })
-      .catch((error) => {
-        if (!(error instanceof FirebaseError)) return;
-        this.error = error.message;
-      });
+    this.setLoading(loginPromise).then(() => {
+      this.router.navigateByUrl("/contacts");
+    });
   };
 
   public handleSendEmailSubmit: EventListener = (event) => {
     const formData = this.getFormData(event);
     const email = formData.get("email")!.toString().trim();
+    this.setLoading(this.authService.sendSignInEmail(email)).then(() => (this.showSendEmailModal = false));
   };
 
   public handleResetPasswordSubmit: EventListener = (event) => {
     const formData = this.getFormData(event);
     const email = formData.get("email")!.toString().trim();
+    this.setLoading(this.authService.sendPasswordResetEmail(email)).then(() => (this.showResetPasswordModal = false));
   };
 
   private getFormData(event: Event) {
@@ -61,7 +58,13 @@ export class AuthComponent implements OnInit {
 
   private setLoading<T>(promise: Promise<T>) {
     this.loading = true;
-    return Promise.resolve(promise).finally(() => (this.loading = false));
+    this.error = "";
+    return Promise.resolve(promise)
+      .catch((error) => {
+        if (!(error instanceof FirebaseError)) return;
+        this.error = error.message;
+      })
+      .finally(() => (this.loading = false));
   }
 
   public handleAuthNavClick(mode: AuthNavModes) {
