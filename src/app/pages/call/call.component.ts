@@ -22,28 +22,37 @@ export class CallComponent implements OnInit {
   @ViewChild("theirVideo")
   private theirVideo!: ElementRef<HTMLVideoElement>;
 
-  constructor(private callService: CallService, private router: Router, private route: ActivatedRoute) {
-    this.callService.watchForInvitations().subscribe((invitation) => {
-      this.handleMessage(invitation.value, invitation.sender);
-    });
-  }
+  constructor(private callService: CallService, private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
+    [this.myVideo.nativeElement, this.theirVideo.nativeElement].forEach((video) =>
+      video.addEventListener("loadedmetadata", () => video.play()),
+    );
     this.myVideo.nativeElement.srcObject = this.myMediaStream;
     const paramsSub = this.route.queryParams.subscribe((params) => {
       this.isVideo = Boolean(Number(params["is-video"]));
-      this.theirUid = params["their-uid"];
       this.isCaller = !Boolean(Number(params["polite"]));
       this.preparePeerConnection();
-      if (this.isCaller) this.makeOffer();
     });
-    this.subscriptions.push(paramsSub);
+    const callSub = this.callService.watch().subscribe((invitation) => {
+      if (this.isCaller) {
+        this.theirUid = invitation.sender;
+        this.makeOffer();
+      }
+      this.handleMessage(invitation.value, invitation.sender);
+    });
+    this.subscriptions.push(paramsSub, callSub);
   }
 
   ngOnDestroy(): void {
+    this.peerConnection.close();
     this.subscriptions.forEach((sub) => sub.unsubscribe());
+    [this.myMediaStream, this.theirMediaStream].forEach((stream) =>
+      stream.getTracks().forEach((track) => track.stop()),
+    );
+    if (this.theirUid) this.callService.cleanUp(this.theirUid);
   }
 
   /**
@@ -76,6 +85,7 @@ export class CallComponent implements OnInit {
     theirUid,
   ) => {
     this.theirUid = theirUid;
+    console.log("data received, ", candidate, description, offer, answer);
     if (offer) {
       await this.peerConnection.setRemoteDescription(offer);
       const answer = await this.peerConnection.createAnswer();
@@ -120,6 +130,9 @@ export class CallComponent implements OnInit {
       tracks.forEach((track) => this.peerConnection.addTrack(track, stream));
       this.peerConnection.addEventListener("track", this.handleTrackEvent);
       this.peerConnection.addEventListener("icecandidate", this.handleIceCandidateEvent);
+      this.peerConnection.addEventListener("iceconnectionstatechange", () =>
+        console.log("Candidate state ", this.peerConnection.iceConnectionState),
+      );
       this.peerConnection.addEventListener("datachannel", this.handleDataChannel);
     });
   }

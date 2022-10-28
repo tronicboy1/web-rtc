@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 import { app } from "@custom-firebase/firebase";
 import { AuthService } from "./auth.service";
-import { getDatabase, set, ref as getRef, onValue } from "firebase/database";
+import { getDatabase, set, ref as getRef, onValue, remove } from "firebase/database";
 import { filter, Observable } from "rxjs";
 
-type Message = CallInvitation & { value: string };
+type Message = { sender: string; value: string; isVideo: boolean };
 type Content = {
   description?: RTCSessionDescription;
   candidate?: RTCIceCandidate | null;
@@ -37,6 +37,12 @@ export class CallService {
     set(ref, message);
   }
 
+  public cleanUp(theirUid: string) {
+    const theirRef = getRef(this.db, `${CallService.path}/${theirUid}`);
+    const myRef = getRef(this.db, `${CallService.path}/${this.myUid}`);
+    return Promise.all([remove(myRef), remove(theirRef)]);
+  }
+
   public watch() {
     if (!this.myUid) throw Error("Email not set.");
     const ref = getRef(this.db, `${CallService.path}/${this.myUid}`);
@@ -44,7 +50,13 @@ export class CallService {
       let unsubscribe = onValue(ref, (snapshot) => {
         const data = snapshot.val() as Message | null;
         if (!data) return;
-        observer.next({ ...data, value: JSON.parse(data.value) });
+        const parsedValue = JSON.parse(data.value) as Content;
+        const invitation: CallInvitation = { ...data, value: parsedValue };
+        if (invitation.value.offer) {
+          this.lastOffer = invitation;
+          console.log("LAST OFFER", this.lastOffer);
+        }
+        observer.next(invitation);
       });
       return unsubscribe;
     });

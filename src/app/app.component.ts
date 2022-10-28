@@ -3,6 +3,7 @@ import { Router } from "@angular/router";
 import { AuthService } from "@services/auth.service";
 import { CallService } from "@services/call.service";
 import { Subscription } from "rxjs";
+import { CallQueryParameters } from "./app-routing.module";
 
 @Component({
   selector: "app-root",
@@ -22,8 +23,13 @@ export class AppComponent {
       if (!this.isAuth) return this.handleSignOut();
       if (this.isAuth && !this.callSubscription) {
         this.callSubscription = this.callService.watchForInvitations().subscribe((invitation) => {
+          const queryParams: CallQueryParameters = {
+            "their-uid": invitation.sender,
+            "is-video": Number(invitation.isVideo),
+            polite: 1,
+          };
           this.router.navigate(["/call"], {
-            queryParams: { email: invitation.sender, isVideo: invitation.isVideo, polite: true },
+            queryParams,
           });
         });
       }
