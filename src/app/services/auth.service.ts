@@ -27,6 +27,7 @@ export class AuthService {
   public createUser(email: string, password: string) {
     return createUserWithEmailAndPassword(this.auth, email, password).then((creds) => {
       this.user = creds.user;
+      this.uidRegister.setUidRecord(email, this.user.uid);
       return creds;
     });
   }
