@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { app } from "@custom-firebase/firebase";
 import { AuthService } from "./auth.service";
 import { getDatabase, set, ref as getRef, onValue, remove } from "firebase/database";
-import { filter, mergeMap, Observable } from "rxjs";
+import { filter, map, mergeMap, Observable, OperatorFunction } from "rxjs";
 
 type Message = { sender: string; value: string; isVideo: boolean };
 type Content = {
@@ -11,7 +11,7 @@ type Content = {
   offer?: RTCSessionDescriptionInit;
   answer?: RTCSessionDescriptionInit;
 };
-export type CallInvitation = { sender: string; value: Content; isVideo?: boolean };
+export type CallInvitation = { sender: string; value: Content; isVideo: boolean };
 
 @Injectable({
   providedIn: "root",
@@ -28,7 +28,7 @@ export class CallService {
     });
   }
 
-  public send(theirUid: string, value: Content, isVideo = false) {
+  public send(theirUid: string, value: Content, isVideo: boolean) {
     console.log("SEND: ", value);
     if (!this.myUid) throw Error("Email not set.");
     if (!theirUid || typeof theirUid !== "string" || theirUid.length < 4)
@@ -44,20 +44,17 @@ export class CallService {
     return Promise.all([remove(myRef), remove(theirRef)]);
   }
 
-  public watch() {
+  private observeCalls() {
     return this.authService.getAuthState().pipe(
       filter((user) => user !== null),
       mergeMap(
         (user) =>
-          new Observable<CallInvitation>((observer) => {
+          new Observable<Message | null>((observer) => {
             if (!user) throw Error("user was null");
             const ref = getRef(this.db, `${CallService.path}/${user.uid}`);
             let unsubscribe = onValue(ref, (snapshot) => {
               const data = snapshot.val() as Message | null;
-              if (!data) return;
-              const parsedValue = JSON.parse(data.value) as Content;
-              const invitation: CallInvitation = { ...data, value: parsedValue };
-              observer.next(invitation);
+              observer.next(data);
             });
             return unsubscribe;
           }),
@@ -65,7 +62,22 @@ export class CallService {
     );
   }
 
+  public watch() {
+    return this.observeCalls().pipe(
+      filter((data) => data !== null) as OperatorFunction<Message | null, Message>,
+      map((data) => {
+        const parsedValue = JSON.parse(data.value) as Content;
+        const invitation: CallInvitation = { ...data, value: parsedValue };
+        return invitation;
+      }),
+    );
+  }
+
   public watchForInvitations() {
     return this.watch().pipe(filter((data) => Boolean(data.value.offer)));
+  }
+
+  public watchForCallEnd(): Observable<null> {
+    return this.observeCalls().pipe(filter((data) => data === null) as OperatorFunction<Message | null, null>);
   }
 }

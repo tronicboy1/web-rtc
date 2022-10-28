@@ -27,12 +27,12 @@ export class CallComponent implements OnInit {
     this.myVideo.nativeElement.srcObject = this.rtcService.myMediaStream;
     this.theirVideo.nativeElement.srcObject = this.rtcService.theirMediaStream;
     const paramsSub = this.route.queryParams.subscribe((params) => {
-      // this.isVideo = Boolean(Number(params["is-video"]));
+      const isVideo = Boolean(Number(params["is-video"]));
       const isCaller = !Boolean(Number(params["polite"]));
       const theirUid = params["their-uid"];
       if (isCaller) {
         console.log("Offer params observable", isCaller);
-        this.rtcService.makeOffer(theirUid);
+        this.rtcService.makeOffer(theirUid, isVideo);
       }
     });
     this.subscriptions.push(paramsSub);

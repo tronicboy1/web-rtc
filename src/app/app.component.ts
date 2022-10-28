@@ -24,6 +24,7 @@ export class AppComponent {
   ) {}
 
   ngOnInit() {
+    this.callService.watchForCallEnd().subscribe(() => this.router.navigateByUrl("/contacts"));
     this.authService.getAuthState().subscribe((user) => {
       this.isAuth = Boolean(user);
       if (!this.isAuth) return this.handleSignOut();
