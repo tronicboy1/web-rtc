@@ -47,9 +47,13 @@ export class ContactsComponent implements OnInit {
       .finally(() => (this.loading = false));
   }
 
-  public handleAudioCallClick = (email: string) => {};
+  public handleAudioCallClick = (email: string) => {
+    this.router.navigate(["/call"], { queryParams: { email, isVideo: false, impolite: true } });
+  };
 
-  public handleVideoCallClick = (email: string) => {};
+  public handleVideoCallClick = (email: string) => {
+    this.router.navigate(["/call"], { queryParams: { email, isVideo: true, impolite: true } });
+  };
 
   public handlContactTileDeleteClick = (email: string) => (this.emailToDelete = email);
   public handleDeleteContact = () => {
