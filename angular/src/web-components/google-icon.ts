@@ -1,6 +1,10 @@
 import { css, CSSResultGroup, html, LitElement } from "lit";
+import { customElement } from "lit/decorators.js";
 
-export default class GoogleIcon extends LitElement {
+const tagName = "google-icon";
+
+@customElement(tagName)
+export class GoogleIcon extends LitElement {
   static styles?: CSSResultGroup | undefined = css`
     svg {
       width: auto;
@@ -91,5 +95,11 @@ export default class GoogleIcon extends LitElement {
           </g>
         </g>
       </svg>`;
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    [tagName]: GoogleIcon;
   }
 }

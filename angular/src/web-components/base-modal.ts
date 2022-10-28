@@ -3,6 +3,7 @@ import { property, customElement } from "lit/decorators.js";
 import { globalStyles } from "./shared";
 
 export const tagName = "base-modal";
+const closeModalEventName = "modal-closed";
 
 @customElement(tagName)
 export class BaseModal extends LitElement {
@@ -88,7 +89,10 @@ export class BaseModal extends LitElement {
   ];
 
   #stopPropagation: EventListener = (event) => event.stopPropagation();
-  #closeModal: EventListener = () => this.removeAttribute("show");
+
+  #closeModal: EventListener = () => {
+    this.dispatchEvent(new Event(closeModalEventName));
+  };
 
   render() {
     return html`
@@ -121,5 +125,8 @@ export class BaseModal extends LitElement {
 declare global {
   interface HTMLElemenTagNamMap {
     [tagName]: BaseModal;
+  }
+  interface HTMLElementEventMap {
+    [closeModalEventName]: Event;
   }
 }

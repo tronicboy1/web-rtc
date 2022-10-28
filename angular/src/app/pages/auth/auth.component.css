@@ -1,7 +1,7 @@
-:host {
+/* :host {
   animation: fadeIn 0.5s forwards;
   opacity: 0;
-}
+} */
 
 h1 {
   text-align: center;
@@ -57,11 +57,15 @@ button {
   margin: 0;
 }
 
-button[active] {
+button:disabled {
+  cursor: default;
+}
+
+button.active {
   background-color: var(--secondary-color);
   border-color: var(--secondary-color);
 }
-button[active]:hover {
+button.active:hover {
   background-color: var(--secondary-color);
   border-color: var(--secondary-color);
 }
