@@ -7,11 +7,12 @@ import { AuthComponent } from "./pages/auth/auth.component";
 import { PageNotFoundComponent } from "./page-not-found/page-not-found.component";
 import { ContactsComponent } from './pages/contacts/contacts.component';
 import { CallComponent } from './pages/call/call.component';
+import { RtcService } from "@services/rtc.service";
 
 @NgModule({
   declarations: [AppComponent, AuthComponent, PageNotFoundComponent, ContactsComponent, CallComponent],
   imports: [BrowserModule, AppRoutingModule],
-  providers: [],
+  providers: [RtcService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

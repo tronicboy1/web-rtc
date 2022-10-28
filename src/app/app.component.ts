@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 import { AuthService } from "@services/auth.service";
 import { CallService } from "@services/call.service";
+import { RtcService } from "@services/rtc.service";
 import { Subscription } from "rxjs";
 import { CallQueryParameters } from "./app-routing.module";
 
@@ -15,7 +16,12 @@ export class AppComponent {
   public isAuth = false;
   private callSubscription?: Subscription;
 
-  constructor(private authService: AuthService, private router: Router, private callService: CallService) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private callService: CallService,
+    private rtcService: RtcService,
+  ) {}
 
   ngOnInit() {
     this.authService.getAuthState().subscribe((user) => {
