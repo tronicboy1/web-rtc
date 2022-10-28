@@ -1,10 +1,12 @@
 import { Injectable } from "@angular/core";
 import { app } from "@custom-firebase/firebase";
-import { getDatabase, ref, get, onValue, set, remove } from "firebase/database";
+import { getDatabase, ref, get, onValue, set } from "firebase/database";
 import { Observable } from "rxjs";
 import { AuthService } from "./auth.service";
+import { UidRegisterService } from "./uid-register.service";
 
-export type Contacts = string[];
+export type Contact = { uid: string; email: string };
+export type Contacts = Contact[];
 
 @Injectable({
   providedIn: "root",
@@ -13,7 +15,7 @@ export class ContactService {
   static contactsPath = "contacts";
   private db = getDatabase(app);
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private uidRegisterService: UidRegisterService) {}
 
   public getContacts() {
     const ref = this.getDocRef();
@@ -35,10 +37,12 @@ export class ContactService {
     return this.authService.checkIfUserExists(email).then((exists) => {
       if (!exists) throw Error("Cannot add non-existant email.");
       const ref = this.getDocRef();
-      return get(ref).then((value) => {
-        const oldContacts = (value.val() as Contacts | undefined) ?? [];
-        if (oldContacts.includes(email)) throw Error("Email already exists.");
-        return set(ref, [...oldContacts, email]);
+      return Promise.all([get(ref), this.uidRegisterService.getTheirUid(email)]).then(([contactsResult, newUid]) => {
+        const oldContacts = (contactsResult.val() as Contacts | undefined) ?? [];
+        const alreadyHasContact = Boolean(oldContacts.find((contact) => contact.email === email));
+        if (alreadyHasContact) throw Error("Contact already exists.");
+        const newContact: Contact = { email, uid: newUid };
+        return set(ref, [...oldContacts, newContact]);
       });
     });
   }
@@ -49,7 +53,7 @@ export class ContactService {
       const oldContacts = (value.val() as Contacts | undefined) ?? [];
       return set(
         ref,
-        oldContacts.filter((email) => email !== emailToDelete),
+        oldContacts.filter((contact) => contact.email !== emailToDelete),
       );
     });
   }

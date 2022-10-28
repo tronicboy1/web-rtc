@@ -11,8 +11,9 @@ import {
   updatePassword,
   fetchSignInMethodsForEmail,
 } from "firebase/auth";
-import { Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 import type { User } from "firebase/auth";
+import { UidRegisterService } from "./uid-register.service";
 
 @Injectable({
   providedIn: "root",
@@ -21,7 +22,7 @@ export class AuthService {
   private auth = getAuth(app);
   public user: User | null = null;
 
-  constructor() {}
+  constructor(private uidRegister: UidRegisterService) {}
 
   public createUser(email: string, password: string) {
     return createUserWithEmailAndPassword(this.auth, email, password).then((creds) => {
@@ -33,6 +34,7 @@ export class AuthService {
   public signInUser(email: string, password: string) {
     return signInWithEmailAndPassword(this.auth, email, password).then((creds) => {
       this.user = creds.user;
+      this.uidRegister.setUidRecord(email, this.user.uid);
       return creds;
     });
   }
@@ -64,6 +66,14 @@ export class AuthService {
       });
       return unsubscribe;
     });
+  }
+
+  public getEmail() {
+    return this.getAuthState().pipe(map((user) => (user ? user.email : null)));
+  }
+
+  public getUid() {
+    return this.getAuthState().pipe(map((user) => (user ? user.uid : null)));
   }
 
   public checkIfUserExists(email: string) {
