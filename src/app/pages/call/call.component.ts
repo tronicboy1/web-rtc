@@ -1,6 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
-import { CallInvitation, CallService } from "@services/call.service";
+import { ActivatedRoute } from "@angular/router";
 import { RtcService } from "@services/rtc.service";
 import { Subscription } from "rxjs";
 
@@ -10,13 +9,14 @@ import { Subscription } from "rxjs";
   styleUrls: ["./call.component.css"],
 })
 export class CallComponent implements OnInit {
+  public isVideo = false;
   private subscriptions: Subscription[] = [];
   @ViewChild("myVideo")
   private myVideo!: ElementRef<HTMLVideoElement>;
   @ViewChild("theirVideo")
   private theirVideo!: ElementRef<HTMLVideoElement>;
 
-  constructor(private router: Router, private route: ActivatedRoute, private rtcService: RtcService) {}
+  constructor(private route: ActivatedRoute, private rtcService: RtcService) {}
 
   ngOnInit(): void {}
 
@@ -27,12 +27,11 @@ export class CallComponent implements OnInit {
     this.myVideo.nativeElement.srcObject = this.rtcService.myMediaStream;
     this.theirVideo.nativeElement.srcObject = this.rtcService.theirMediaStream;
     const paramsSub = this.route.queryParams.subscribe((params) => {
-      const isVideo = Boolean(Number(params["is-video"]));
+      this.isVideo = Boolean(Number(params["is-video"]));
       const isCaller = !Boolean(Number(params["polite"]));
       const theirUid = params["their-uid"];
       if (isCaller) {
-        console.log("Offer params observable", isCaller);
-        this.rtcService.makeOffer(theirUid, isVideo);
+        this.rtcService.makeOffer(theirUid, this.isVideo);
       }
     });
     this.subscriptions.push(paramsSub);

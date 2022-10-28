@@ -4,6 +4,10 @@ video {
   max-width: 100%;
 }
 
+.hide {
+  opacity: 0;
+}
+
 #my-video {
   max-width: 20vw;
   display: block;
