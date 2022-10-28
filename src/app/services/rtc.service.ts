@@ -47,6 +47,10 @@ export class RtcService {
   public close() {
     if (this.theirUid) this.callService.cleanUp(this.theirUid);
     this.peerConnection.close();
+    [this.myMediaStream, this.theirMediaStream].forEach((stream) =>
+      stream.getTracks().forEach((track) => track.stop()),
+    );
+    this.preparePeerConnection();
   }
 
   private handleMessage: (invitation: CallInvitation["value"], theirUid: string) => Promise<void> = async (
@@ -96,8 +100,10 @@ export class RtcService {
   }
 
   private preparePeerConnection() {
+    this.myMediaStream = new MediaStream();
+    this.theirMediaStream = new MediaStream();
+    this.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
     return this.getVideoStream().then((stream) => {
-      this.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
       const tracks = stream.getTracks();
       tracks.forEach((track) => this.peerConnection.addTrack(track, stream));
       this.peerConnection.addEventListener("track", this.handleTrackEvent);
