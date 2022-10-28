@@ -1,6 +1,5 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { AuthService } from "@services/auth.service";
 import { CallInvitation, CallService } from "@services/call.service";
 import { Subscription } from "rxjs";
 
@@ -11,23 +10,34 @@ import { Subscription } from "rxjs";
 })
 export class CallComponent implements OnInit {
   private subscriptions: Subscription[] = [];
+  private isVideo = false;
+  private isCaller = false;
+  public myMediaStream = new MediaStream();
+  public theirMediaStream = new MediaStream();
+  private peerConnection = new RTCPeerConnection();
+  public dataChannel: RTCDataChannel | null = null;
+  private theirUid?: string;
+  @ViewChild("myVideo")
+  private myVideo!: ElementRef<HTMLVideoElement>;
+  @ViewChild("theirVideo")
+  private theirVideo!: ElementRef<HTMLVideoElement>;
 
-  constructor(
-    private authService: AuthService,
-    private callService: CallService,
-    private router: Router,
-    private route: ActivatedRoute,
-  ) {
-    this.preparePeerConnection();
+  constructor(private callService: CallService, private router: Router, private route: ActivatedRoute) {
     this.callService.watchForInvitations().subscribe((invitation) => {
       this.handleMessage(invitation.value, invitation.sender);
     });
   }
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  ngAfterViewInit(): void {
+    this.myVideo.nativeElement.srcObject = this.myMediaStream;
     const paramsSub = this.route.queryParams.subscribe((params) => {
-      const isCaller = params["polite"];
-      console.log(Boolean(isCaller));
+      this.isVideo = Boolean(Number(params["is-video"]));
+      this.theirUid = params["their-uid"];
+      this.isCaller = !Boolean(Number(params["polite"]));
+      this.preparePeerConnection();
+      if (this.isCaller) this.makeOffer();
     });
     this.subscriptions.push(paramsSub);
   }
@@ -61,14 +71,6 @@ export class CallComponent implements OnInit {
     // },
   ];
 
-  public myMediaStream = new MediaStream();
-  public theirMediaStream = new MediaStream();
-  private peerConnection = new RTCPeerConnection();
-  public dataChannel: RTCDataChannel | null = null;
-  public theirUid: string | undefined;
-  // private myVideo!: HTMLVideoElement;
-  // private theirVideo!: HTMLVideoElement;
-
   private handleMessage: (invitation: CallInvitation["value"], theirUid: string) => Promise<void> = async (
     { candidate, description, offer, answer },
     theirUid,
@@ -90,8 +92,8 @@ export class CallComponent implements OnInit {
     }
   };
 
-  public async makeOffer(theirUid: string) {
-    this.theirUid = theirUid;
+  public async makeOffer() {
+    if (!this.theirUid) throw TypeError("Their ID must be defined before making an Offer.");
     this.dataChannel = this.peerConnection.createDataChannel("messages", { negotiated: false });
     this.dataChannel.addEventListener("error", (event) => console.error("Data Channel Error", event));
     this.dataChannel.addEventListener("open", this.handleDataChannelOpening);
@@ -124,6 +126,7 @@ export class CallComponent implements OnInit {
 
   private handleTrackEvent = (event: RTCTrackEvent) => {
     const { track } = event;
+    this.theirVideo.nativeElement.srcObject ||= this.theirMediaStream;
     // track is initially muted, but becomes unmuted automatically when packets are received
     track.addEventListener("unmute", () => {
       this.theirMediaStream.addTrack(track);

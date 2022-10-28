@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { app } from "@custom-firebase/firebase";
 import { AuthService } from "./auth.service";
-import { getDatabase, set, ref as getRef, onValue, remove } from "firebase/database";
+import { getDatabase, set, ref as getRef, onValue } from "firebase/database";
 import { filter, Observable } from "rxjs";
 
 type Message = CallInvitation & { value: string };
@@ -17,6 +17,7 @@ export type CallInvitation = { sender: string; value: Content; isVideo?: boolean
   providedIn: "root",
 })
 export class CallService {
+  static path = "calls";
   private db = getDatabase(app);
   private myUid: string | null = null;
   public lastOffer?: CallInvitation;
@@ -32,13 +33,13 @@ export class CallService {
     if (!theirUid || typeof theirUid !== "string" || theirUid.length < 4)
       throw TypeError("Recipient must have an Id greater than 4 characters.");
     const message: Message = { sender: this.myUid, value: JSON.stringify(value), isVideo };
-    const ref = getRef(this.db, theirUid);
+    const ref = getRef(this.db, `${CallService.path}/${theirUid}`);
     set(ref, message);
   }
 
   public watch() {
     if (!this.myUid) throw Error("Email not set.");
-    const ref = getRef(this.db, this.myUid);
+    const ref = getRef(this.db, `${CallService.path}/${this.myUid}`);
     return new Observable<CallInvitation>((observer) => {
       let unsubscribe = onValue(ref, (snapshot) => {
         const data = snapshot.val() as Message | null;

@@ -6,7 +6,7 @@ import { AuthComponent } from "./pages/auth/auth.component";
 import { CallComponent } from "./pages/call/call.component";
 import { ContactsComponent } from "./pages/contacts/contacts.component";
 
-export type CallQueryParameters = { "their-uid": string; polite: boolean; "is-video": number };
+export type CallQueryParameters = { "their-uid": string; polite: number; "is-video": number };
 
 const routes: Routes = [
   { path: "contacts", component: ContactsComponent, canActivate: [AuthGuard] },

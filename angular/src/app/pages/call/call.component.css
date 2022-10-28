@@ -1,0 +1,28 @@
+video {
+  height: auto;
+  width: auto;
+  max-width: 100%;
+}
+
+#my-video {
+  max-width: 20vw;
+  display: block;
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 999;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+#video-box {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 90%;
+  margin: 1rem auto;
+  max-height: 80vh;
+  padding: 1rem;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.112);
+  border-radius: 4px;
+}

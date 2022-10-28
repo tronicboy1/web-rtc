@@ -49,12 +49,12 @@ export class ContactsComponent implements OnInit {
   }
 
   public handleAudioCallClick = (uid: string) => {
-    const queryParams: CallQueryParameters = { "their-uid": uid, "is-video": 0, polite: false };
+    const queryParams: CallQueryParameters = { "their-uid": uid, "is-video": 0, polite: 0 };
     this.router.navigate(["/call"], { queryParams });
   };
 
   public handleVideoCallClick = (uid: string) => {
-    const queryParams: CallQueryParameters = { "their-uid": uid, "is-video": 1, polite: false };
+    const queryParams: CallQueryParameters = { "their-uid": uid, "is-video": 1, polite: 0 };
     this.router.navigate(["/call"], { queryParams });
   };
 
