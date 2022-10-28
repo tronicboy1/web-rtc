@@ -93,6 +93,7 @@ svg {
 .delete {
   background-color: var(--danger-color) !important;
   border: 1px solid var(--danger-color) !important;
+  color: white;
 }
 
 .delete:hover {

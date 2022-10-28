@@ -61,6 +61,10 @@ export class BaseModal extends LitElement {
         margin-bottom: 1rem;
       }
 
+      header h1 {
+        word-wrap: break-word;
+      }
+
       svg {
         height: 34px;
         width: auto;
