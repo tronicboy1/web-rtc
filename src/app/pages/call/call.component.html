@@ -4,4 +4,4 @@
 <div [class.hide]="!this.isVideo" class="card">
   <video id="their-video" playsinline autoplay #theirVideo></video>
 </div>
-<video id="my-video" muted playsinline autoplay #myVideo></video>
+<video id="my-video" [muted]="true" playsinline autoplay #myVideo></video>
