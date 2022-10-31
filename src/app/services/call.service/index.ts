@@ -3,7 +3,6 @@ import { set, ref as getRef, remove } from "firebase/database";
 import { AuthService } from "../auth.service";
 import { BaseCallService } from "./base";
 
-
 export type Message = { sender: string; value: string; isVideo: boolean };
 export type Content = {
   description?: RTCSessionDescription;

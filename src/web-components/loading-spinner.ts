@@ -67,6 +67,6 @@ export class LoadingSpinner extends LitElement {
 
 declare global {
   interface HTMLElemenTagNamMap {
-    [tagName]: LoadingSpinner
+    [tagName]: LoadingSpinner;
   }
 }

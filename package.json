@@ -7,7 +7,8 @@
     "build": "yarn build-sw && ng build",
     "build-sw": "npx esbuild --bundle --minify src/sw/index.ts --tsconfig=src/sw/tsconfig.json --outfile=src/custom-sw.js",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "format": "prettier ./src --write"
   },
   "private": true,
   "dependencies": {

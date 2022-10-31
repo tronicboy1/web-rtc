@@ -1,5 +1,9 @@
-<base-modal [show]="this.showSendEmailModal" (modal-closed)="this.toggleSendEmailModal(false)" id="email-login-modal"
-  modal-title="Send Login Email">
+<base-modal
+  [show]="this.showSendEmailModal"
+  (modal-closed)="this.toggleSendEmailModal(false)"
+  id="email-login-modal"
+  modal-title="Send Login Email"
+>
   <form (submit)="this.handleSendEmailSubmit($event)">
     <div class="form-group">
       <label for="email-login-email">Email</label>
@@ -12,8 +16,12 @@
   </form>
 </base-modal>
 
-<base-modal [show]="this.showResetPasswordModal" (modal-closed)="this.toggleResetPasswordModal(false)"
-  id="reset-password" modal-title="Reset Password">
+<base-modal
+  [show]="this.showResetPasswordModal"
+  (modal-closed)="this.toggleResetPasswordModal(false)"
+  id="reset-password"
+  modal-title="Reset Password"
+>
   <form (submit)="this.handleResetPasswordSubmit($event)">
     <div class="form-group">
       <label for="reset-password-email">Email</label>
@@ -30,18 +38,28 @@
   <h1>Yobo</h1>
   <h3>A free peer to peer chat app.</h3>
   <nav class="button-group">
-    <button [class.active]="this.mode === 'LOGIN'" [disabled]="this.mode === 'LOGIN'" class="button-left"
-      id="login-button" type="button" (click)="this.handleAuthNavClick('LOGIN')">
+    <button
+      [class.active]="this.mode === 'LOGIN'"
+      [disabled]="this.mode === 'LOGIN'"
+      class="button-left"
+      id="login-button"
+      type="button"
+      (click)="this.handleAuthNavClick('LOGIN')"
+    >
       Login
     </button>
-    <button [class.active]="this.mode === 'REGISTER'" class="button-right" id="register-button" type="button"
-      (click)="this.handleAuthNavClick('REGISTER')">
+    <button
+      [class.active]="this.mode === 'REGISTER'"
+      class="button-right"
+      id="register-button"
+      type="button"
+      (click)="this.handleAuthNavClick('REGISTER')"
+    >
       Register
     </button>
   </nav>
-  <p *ngIf="this.error" id="errors">{{this.error}}</p>
+  <p *ngIf="this.error" id="errors">{{ this.error }}</p>
   <form class="login-form" (submit)="this.handleLoginSubmit($event)">
-
     <ng-template [ngIf]="this.mode === 'LOGIN'">
       <div class="form-group">
         <label for="email">Email</label>
@@ -61,8 +79,15 @@
       </div>
       <div class="form-group">
         <label for="password">Password</label>
-        <input id="password" name="password" type="password" minlength="6" maxlength="64" required
-          autocomplete="new-password" />
+        <input
+          id="password"
+          name="password"
+          type="password"
+          minlength="6"
+          maxlength="64"
+          required
+          autocomplete="new-password"
+        />
       </div>
     </ng-template>
 
