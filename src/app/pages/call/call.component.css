@@ -8,11 +8,64 @@ video {
   opacity: 0;
 }
 
+#call-box {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.controls {
+  padding: 1rem;
+  margin: auto;
+  height: 100%;
+}
+
+.controls ul {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  flex: 1 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem;
+  background-color: var(--secondary-color);
+  border: 1px solid var(--secondary-color);
+  border-radius: var(--radius);
+}
+
+.controls li {
+  margin: 0 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--secondary-color);
+  background-color: var(--secondary-color);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.controls svg {
+  fill: white;
+}
+
+#end-call {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
 #my-video {
   max-width: 20vw;
   display: block;
   position: fixed;
-  bottom: 1rem;
+  bottom: 90px;
   right: 1rem;
   z-index: 999;
   border: 1px solid var(--border-color);
@@ -29,4 +82,21 @@ video {
   padding: 1rem;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.112);
   border-radius: 4px;
+}
+
+#mic {
+  z-index: 10;
+  position: absolute;
+  width: 96px;
+  height: 96px;
+  top: 0;
+  bottom: 100px;
+  right: 0;
+  left: 0;
+  margin: auto;
+  display: flex;
+}
+
+#mic svg {
+  fill: white;
 }

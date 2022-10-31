@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { RtcService } from "@services/rtc.service";
 import { Subscription } from "rxjs";
 
@@ -16,7 +16,7 @@ export class CallComponent implements OnInit {
   @ViewChild("theirVideo")
   private theirVideo!: ElementRef<HTMLVideoElement>;
 
-  constructor(private route: ActivatedRoute, private rtcService: RtcService) {}
+  constructor(private route: ActivatedRoute, private router: Router, private rtcService: RtcService) {}
 
   ngOnInit(): void {}
 
@@ -41,4 +41,6 @@ export class CallComponent implements OnInit {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
     this.rtcService.close();
   }
+
+  public handleEndClick = () => this.router.navigateByUrl("/contacts");
 }
