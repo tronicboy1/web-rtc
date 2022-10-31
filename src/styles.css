@@ -40,6 +40,10 @@ svg {
   fill: var(--primary-color);
 }
 
+input {
+  min-width: 0;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #232323;
