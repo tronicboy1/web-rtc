@@ -16,30 +16,18 @@ export class AppComponent {
   private callSubscription?: Subscription;
   public email?: string;
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private callService: CallService,
-  ) {}
+  constructor(private authService: AuthService, private router: Router, private callService: CallService) {}
 
   ngOnInit() {
     /** Get permission for notifications */
     if ("serviceWorker" in navigator && typeof Notification !== "undefined") {
-      Notification.requestPermission().then((value) => {
-        if (value !== "granted") return Promise.resolve();
-        return navigator.serviceWorker.ready.then((registration) => {
-          registration.showNotification("Notifications enabled.", {
-            body: "Notifications will be displayed when you receive a call.",
-            icon: './assets/icons/icon-192x192.png',
-          });
-        });
-      });
+      Notification.requestPermission();
     }
     this.callService.watchForCallEnd().subscribe(() => this.router.navigateByUrl("/contacts"));
     this.authService.getAuthState().subscribe((user) => {
       this.isAuth = Boolean(user);
       if (!user) return this.handleSignOut();
-      this.email = user.email!
+      this.email = user.email!;
       if (this.isAuth && !this.callSubscription) {
         this.callSubscription = this.callService.watchForInvitations().subscribe((invitation) => {
           const queryParams: CallQueryParameters = {
