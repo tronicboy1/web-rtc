@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "lib": ["WebWorker", "Webworker.Iterable", "WebWorker.ImportScripts", "ESNext"],
+    "types": []
   },
   "exclude": ["node_modules"],
   "files": ["index.ts"],
-  "extends": "../../tsconfig.app.json"
+  "extends": "../../tsconfig.json"
 }
