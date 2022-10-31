@@ -31,12 +31,13 @@ self.addEventListener("notificationclick", (event) => {
   if (typeof callUrlString !== "string") throw TypeError("Notification must be url String.");
   const callUrlObject = new URL(callUrlString);
   const openWindowPromise = self.clients.matchAll({ type: "window" }).then((windows) => {
-    const alreadyOpened = windows.some((window) => {
+    const hasWindowToFocus = windows.find((window) => {
       const windowUrlObject = new URL(window.url);
       const uidIsEqual = windowUrlObject.searchParams.get("their-uid") === callUrlObject.searchParams.get("their-uid");
       return uidIsEqual && windowUrlObject.pathname === "/call";
     });
-    console.log("SW: Notification, already opened?", alreadyOpened);
+    if (hasWindowToFocus) return hasWindowToFocus.focus();
+    return self.clients.openWindow(callUrlString).then((window) => window?.focus());
   });
   event.waitUntil(openWindowPromise);
 });
