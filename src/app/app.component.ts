@@ -20,7 +20,6 @@ export class AppComponent {
     private authService: AuthService,
     private router: Router,
     private callService: CallService,
-    private rtcService: RtcService,
   ) {}
 
   ngOnInit() {
