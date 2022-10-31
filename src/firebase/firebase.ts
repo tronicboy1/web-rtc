@@ -13,7 +13,7 @@ if (!environment.production) {
   self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
 }
 
-if (self instanceof Window) {
+if (self instanceof Window && environment.production) {
   initializeAppCheck(app, {
     provider: new ReCaptchaV3Provider("6Lcg2rciAAAAAOB7QZshJI7Dko_77izUQGdu6XJF"),
     isTokenAutoRefreshEnabled: true,

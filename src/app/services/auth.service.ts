@@ -14,15 +14,17 @@ import {
 import { map, Observable } from "rxjs";
 import type { User } from "firebase/auth";
 import { UidRegisterService } from "./uid-register.service";
+import { FirebaseAuth } from "@custom-firebase/inheritables/auth";
 
 @Injectable({
   providedIn: "root",
 })
-export class AuthService {
-  private auth = getAuth(app);
+export class AuthService extends FirebaseAuth {
   public user: User | null = null;
 
-  constructor(private uidRegister: UidRegisterService) {}
+  constructor(private uidRegister: UidRegisterService) {
+    super();
+  }
 
   public createUser(email: string, password: string) {
     return createUserWithEmailAndPassword(this.auth, email, password).then((creds) => {

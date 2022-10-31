@@ -1,14 +1,11 @@
-import { firebaseConfig } from "@custom-firebase/config";
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref as getRef, onValue } from "firebase/database";
+import { ref as getRef, onValue } from "firebase/database";
 import { filter, map, mergeMap, Observable, OperatorFunction } from "rxjs";
 import type { User } from "firebase/auth";
 import { CallInvitation, Content, Message } from ".";
+import { FirebaseDatabase } from "@custom-firebase/inheritables/database";
 
-export class BaseCallService {
+export class BaseCallService extends FirebaseDatabase {
   static path = "calls";
-  protected app = initializeApp(firebaseConfig);
-  protected db = getDatabase(this.app);
 
   protected getAuthState() {
     return new Observable<User | null>();

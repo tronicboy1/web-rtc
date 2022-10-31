@@ -1,18 +1,15 @@
 import { Injectable } from "@angular/core";
-import { app } from "@custom-firebase/firebase";
-import { getFirestore, collection, setDoc, doc, query, where, getDocs } from "firebase/firestore";
+import { FirebaseFirestore } from "@custom-firebase/inheritables/firestore";
+import { collection, setDoc, doc, query, where, getDocs } from "firebase/firestore";
 
 export type UidRecord = { email: string; uid: string };
 
 @Injectable({
   providedIn: "root",
 })
-export class UidRegisterService {
+export class UidRegisterService extends FirebaseFirestore {
   static path = "uids";
-  private db = getFirestore(app);
   private collection = collection(this.db, UidRegisterService.path);
-
-  constructor() {}
 
   public setUidRecord(email: string, myUid: string) {
     return setDoc(doc(this.collection, myUid), { email, uid: myUid });

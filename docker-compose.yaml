@@ -1,0 +1,11 @@
+services:
+  emulator:
+    build:
+      context: .
+      dockerfile: emulators.Dockerfile
+    ports:
+      - "9099:9099"
+      - "8080:8080"
+      - "4000:4000"
+      - "9000:9000"
+    tty: true
