@@ -21,7 +21,8 @@ export class CallComponent implements OnInit {
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    [this.myVideo.nativeElement, this.theirVideo.nativeElement].forEach((video) =>
+    this.myVideo.nativeElement.toggleAttribute("muted", true);
+    [(this.myVideo.nativeElement, this.theirVideo.nativeElement)].forEach((video) =>
       video.addEventListener("loadedmetadata", () => video.play()),
     );
     this.myVideo.nativeElement.srcObject = this.rtcService.myMediaStream;
