@@ -1,5 +1,3 @@
-import { firebaseConfig } from "@custom-firebase/config";
-import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { Observable } from "rxjs";
 import { getDatabase } from "firebase/database";

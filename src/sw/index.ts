@@ -8,4 +8,6 @@ self.addEventListener("install", (event) => console.log("SW: Install Event", eve
 
 const callObserver = new CallObserver();
 
-callObserver.watch().subscribe((call) => console.log("SW: Call data: ", call));
+callObserver.watchForInvitations().subscribe((invite) => {
+  console.log("SW: Invitation", invite);
+});

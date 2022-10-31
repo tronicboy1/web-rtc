@@ -1,6 +1,6 @@
 import { firebaseConfig } from "@custom-firebase/config";
 import { initializeApp } from "firebase/app";
-import { getDatabase, set, ref as getRef, onValue, remove } from "firebase/database";
+import { getDatabase, ref as getRef, onValue } from "firebase/database";
 import { filter, map, mergeMap, Observable, OperatorFunction } from "rxjs";
 import type { User } from "firebase/auth";
 import { CallInvitation, Content, Message } from ".";
