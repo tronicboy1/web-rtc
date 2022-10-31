@@ -5,12 +5,14 @@ declare var self: ServiceWorkerGlobalScope;
 
 importScripts("./ngsw-worker.js");
 
-self.addEventListener("install", (event) => console.log("SW: Install Event", event));
+self.addEventListener("install", (event) => {
+  console.log("SW: Install Event", event);
+  event.waitUntil(self.skipWaiting());
+});
 
 const callObserver = new CallObserver();
 
 callObserver.watchForInvitations().subscribe((invite) => {
-  console.log("SW: Invitation", invite);
   const url = new URL(self.location.origin);
   url.pathname = "/call";
   const parameters: CallQueryParameters = { "is-video": Number(invite.isVideo), "their-uid": invite.sender, polite: 0 };
@@ -26,7 +28,6 @@ callObserver.watchForInvitations().subscribe((invite) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  console.log("SW: Notification Click", event.notification.data);
   const callUrlString = event.notification.data;
   if (typeof callUrlString !== "string") throw TypeError("Notification must be url String.");
   const callUrlObject = new URL(callUrlString);
