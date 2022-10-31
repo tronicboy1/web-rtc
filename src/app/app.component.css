@@ -21,6 +21,14 @@ nav ul {
   height: 100%;
 }
 
+#email {
+  word-wrap: break-word;
+  max-width: 30vw;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding: 0;
+}
+
 nav ul li {
   padding: 0.25rem 1rem;
   display: inline-flex;

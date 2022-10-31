@@ -2,7 +2,6 @@ import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 import { AuthService } from "@services/auth.service";
 import { CallService } from "@services/call.service";
-import { RtcService } from "@services/rtc.service";
 import { Subscription } from "rxjs";
 import { CallQueryParameters } from "./app-routing.module";
 
@@ -15,6 +14,7 @@ export class AppComponent {
   title = "angular";
   public isAuth = false;
   private callSubscription?: Subscription;
+  public email?: string;
 
   constructor(
     private authService: AuthService,
@@ -38,7 +38,8 @@ export class AppComponent {
     this.callService.watchForCallEnd().subscribe(() => this.router.navigateByUrl("/contacts"));
     this.authService.getAuthState().subscribe((user) => {
       this.isAuth = Boolean(user);
-      if (!this.isAuth) return this.handleSignOut();
+      if (!user) return this.handleSignOut();
+      this.email = user.email!
       if (this.isAuth && !this.callSubscription) {
         this.callSubscription = this.callService.watchForInvitations().subscribe((invitation) => {
           const queryParams: CallQueryParameters = {
