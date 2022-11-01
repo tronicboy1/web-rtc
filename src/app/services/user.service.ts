@@ -46,7 +46,11 @@ export class UserService extends FirebaseFirestore {
 
   public setUidRecord(email: string, myUid: string) {
     const newUserData: UserData = { email, uid: myUid };
-    return setDoc(doc(this.collection, myUid), newUserData);
+    const ref = doc(this.collection, myUid);
+    return getDoc(ref).then((doc) => {
+      const hasDoc = Boolean(doc.data());
+      return hasDoc ? updateDoc(ref, newUserData) : setDoc(ref, newUserData);
+    });
   }
 
   public getTheirUid(email: string) {

@@ -68,12 +68,12 @@ li:last-child {
 li .activity {
   position: absolute;
   z-index: 1;
-  left: 1rem;
-  top: 1rem;
+  left: 0.75rem;
+  top: 0.75rem;
   border: 1px transparent;
   background-color: transparent;
   border-radius: 50%;
-  padding: 1.5vw;
+  padding: min(12px, 3vw)
 }
 
 li .online {
@@ -85,8 +85,8 @@ li .away {
   border-color: rgb(255, 247, 0);
 }
 li .offline {
-  background-color: white;
-  border-color: white;
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
 }
 
 li span.contact-email {

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, HostListener } from "@angular/core";
 import { Router } from "@angular/router";
 import { AuthService } from "@services/auth.service";
 import { CallService } from "@services/call.service";
@@ -51,11 +51,12 @@ export class AppComponent {
     });
   }
 
-  ngOnDestroy(): void {
+  @HostListener("window:beforeunload", ["$event"])
+  public unloadHandler(event: Event) {
     /** Set user status to offline */
     const uid = this.authService.user?.uid;
     if (!uid) return;
-    this.userService.setOnlineStatus(uid, "offline");
+    this.userService.setOnlineStatus(uid, "away");
   }
 
   private handleSignOut() {

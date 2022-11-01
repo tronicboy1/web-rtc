@@ -54,6 +54,8 @@ export class AuthService extends FirebaseAuth {
   }
 
   public signOutUser() {
+    if (!this.user) throw Error("User data was not available.");
+    this.userService.setOnlineStatus(this.user.uid, "offline");
     return signOut(this.auth).then(() => {
       this.user = null;
     });
