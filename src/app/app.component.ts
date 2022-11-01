@@ -14,7 +14,7 @@ import { CallQueryParameters } from "./app-routing.module";
 export class AppComponent {
   title = "angular";
   public isAuth = false;
-  private callSubscription?: Subscription;
+  private subscritions: Subscription[] = [];
   public email?: string;
 
   constructor(
@@ -29,15 +29,16 @@ export class AppComponent {
     if ("serviceWorker" in navigator && typeof Notification !== "undefined") {
       Notification.requestPermission();
     }
-    this.callService.watchForCallEnd().subscribe(() => this.router.navigateByUrl("/contacts"));
+    /** navigate back to contacts on end of call */
+    this.subscritions.push(this.callService.watchForCallEnd().subscribe(() => this.router.navigateByUrl("/contacts")));
     this.authService.getAuthState().subscribe((user) => {
       this.isAuth = Boolean(user);
       if (!user) return this.handleSignOut();
       /** set user status to online */
       this.userService.setOnlineStatus(user.uid, "online");
       this.email = user.email!;
-      if (this.isAuth && !this.callSubscription) {
-        this.callSubscription = this.callService.watchForInvitations().subscribe((invitation) => {
+      this.subscritions.push(
+        this.callService.watchForInvitations().subscribe((invitation) => {
           const queryParams: CallQueryParameters = {
             "their-uid": invitation.sender,
             "is-video": Number(invitation.isVideo),
@@ -46,9 +47,13 @@ export class AppComponent {
           this.router.navigate(["/call"], {
             queryParams,
           });
-        });
-      }
+        }),
+      );
     });
+  }
+
+  ngOnDestroy(): void {
+    this.subscritions.forEach((sub) => sub.unsubscribe());
   }
 
   @HostListener("window:unload", ["$event"])
