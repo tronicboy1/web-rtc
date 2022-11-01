@@ -3,7 +3,7 @@ import { Router } from "@angular/router";
 import { AuthService } from "@services/auth.service";
 import { CallService } from "@services/call.service";
 import { UserService } from "@services/user.service";
-import { filter, Subscription } from "rxjs";
+import type { Subscription } from "rxjs";
 import { CallQueryParameters } from "./app-routing.module";
 
 @Component({
@@ -51,7 +51,7 @@ export class AppComponent {
     });
   }
 
-  @HostListener("window:beforeunload", ["$event"])
+  @HostListener("window:unload", ["$event"])
   public unloadHandler(event: Event) {
     /** Set user status to offline */
     const uid = this.authService.user?.uid;
