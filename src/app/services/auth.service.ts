@@ -11,8 +11,8 @@ import {
 } from "firebase/auth";
 import { map, Observable } from "rxjs";
 import type { User } from "firebase/auth";
-import { UidRegisterService } from "./uid-register.service";
 import { FirebaseAuth } from "@custom-firebase/inheritables/auth";
+import { UserService } from "./user.service";
 
 @Injectable({
   providedIn: "root",
@@ -20,14 +20,14 @@ import { FirebaseAuth } from "@custom-firebase/inheritables/auth";
 export class AuthService extends FirebaseAuth {
   public user: User | null = null;
 
-  constructor(private uidRegister: UidRegisterService) {
+  constructor(private userService: UserService) {
     super();
   }
 
   public createUser(email: string, password: string) {
     return createUserWithEmailAndPassword(this.auth, email, password).then((creds) => {
       this.user = creds.user;
-      this.uidRegister.setUidRecord(email, this.user.uid);
+      this.userService.setUidRecord(email, this.user.uid);
       return creds;
     });
   }
@@ -35,7 +35,7 @@ export class AuthService extends FirebaseAuth {
   public signInUser(email: string, password: string) {
     return signInWithEmailAndPassword(this.auth, email, password).then((creds) => {
       this.user = creds.user;
-      this.uidRegister.setUidRecord(email, this.user.uid);
+      this.userService.setUidRecord(email, this.user.uid);
       return creds;
     });
   }
@@ -54,6 +54,8 @@ export class AuthService extends FirebaseAuth {
   }
 
   public signOutUser() {
+    if (!this.user) throw Error("User data was not available.");
+    this.userService.setOnlineStatus(this.user.uid, "offline");
     return signOut(this.auth).then(() => {
       this.user = null;
     });

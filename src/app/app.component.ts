@@ -1,8 +1,9 @@
-import { Component } from "@angular/core";
+import { Component, HostListener } from "@angular/core";
 import { Router } from "@angular/router";
 import { AuthService } from "@services/auth.service";
 import { CallService } from "@services/call.service";
-import { Subscription } from "rxjs";
+import { UserService } from "@services/user.service";
+import { filter, Subscription } from "rxjs";
 import { CallQueryParameters } from "./app-routing.module";
 
 @Component({
@@ -16,7 +17,12 @@ export class AppComponent {
   private callSubscription?: Subscription;
   public email?: string;
 
-  constructor(private authService: AuthService, private router: Router, private callService: CallService) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private callService: CallService,
+    private userService: UserService,
+  ) {}
 
   ngOnInit() {
     /** Get permission for notifications */
@@ -27,6 +33,8 @@ export class AppComponent {
     this.authService.getAuthState().subscribe((user) => {
       this.isAuth = Boolean(user);
       if (!user) return this.handleSignOut();
+      /** set user status to online */
+      this.userService.setOnlineStatus(user.uid, "online");
       this.email = user.email!;
       if (this.isAuth && !this.callSubscription) {
         this.callSubscription = this.callService.watchForInvitations().subscribe((invitation) => {
@@ -41,6 +49,14 @@ export class AppComponent {
         });
       }
     });
+  }
+
+  @HostListener("window:beforeunload", ["$event"])
+  public unloadHandler(event: Event) {
+    /** Set user status to offline */
+    const uid = this.authService.user?.uid;
+    if (!uid) return;
+    this.userService.setOnlineStatus(uid, "away");
   }
 
   private handleSignOut() {
