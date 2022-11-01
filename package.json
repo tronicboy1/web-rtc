@@ -9,6 +9,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "format": "prettier ./src --write",
+    "mkcert": "mkcert -key-file key.pem -cert-file cert.pem example.com *.example.com localhost",
     "emulate": "firebase emulators:start --import=./dump"
   },
   "private": true,

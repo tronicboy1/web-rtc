@@ -18,12 +18,7 @@
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets",
-              "src/manifest.webmanifest",
-              "src/custom-sw.js"
-            ],
+            "assets": ["src/favicon.ico", "src/assets", "src/manifest.webmanifest", "src/custom-sw.js"],
             "styles": ["src/styles.css"],
             "scripts": [],
             "serviceWorker": true,
@@ -64,6 +59,11 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "ssl": true,
+            "sslCert": "./cert.pem",
+            "sslKey": "./key.pem"
+          },
           "configurations": {
             "production": {
               "browserTarget": "angular:build:production"
@@ -87,12 +87,7 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets",
-              "src/manifest.webmanifest",
-              "src/custom-sw.js"
-            ],
+            "assets": ["src/favicon.ico", "src/assets", "src/manifest.webmanifest", "src/custom-sw.js"],
             "styles": ["src/styles.css"],
             "scripts": []
           }
