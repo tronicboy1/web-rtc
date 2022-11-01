@@ -3,7 +3,7 @@ import { User } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
 import { combineLatest, filter, map, mergeMap, of, OperatorFunction } from "rxjs";
 import { AuthService } from "./auth.service";
-import { UserService } from "./user.service";
+import { UserData, UserService } from "./user.service";
 
 @Injectable({
   providedIn: "root",
@@ -18,9 +18,15 @@ export class ContactService extends UserService {
       filter((user) => Boolean(user)) as OperatorFunction<User | null, User>,
       mergeMap((user) => this.watchUserDoc(user.uid)),
       map((userData) => userData.contacts ?? []),
-      mergeMap((contacts) => {
-        return contacts.length ? combineLatest(contacts.map((uid) => this.watchUserDoc(uid))) : of([]);
-      }),
+      mergeMap((contacts) => (contacts.length ? combineLatest(contacts.map((uid) => this.watchUserDoc(uid))) : of([]))),
+      map((contactsWithData) =>
+        contactsWithData.map((contact) => {
+          const theirContactsArray = contact.contacts ?? [];
+          const hasMyContact = theirContactsArray.includes(this.authService.user!.uid);
+          const unknownStatusContact: UserData = { ...contact, status: "unknown" };
+          return hasMyContact ? contact : unknownStatusContact;
+        }),
+      ),
     );
   }
 
