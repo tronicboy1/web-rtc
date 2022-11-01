@@ -23,7 +23,7 @@ export class UserService extends FirebaseFirestore {
     return getDoc(ref).then((doc) => doc.data() as UserData | undefined);
   }
 
-  protected watchUserDoc(uid: string) {
+  public watchUserDoc(uid: string) {
     const ref = doc(this.db, UserService.usersPath, uid);
     return new Observable<UserData>((observer) => {
       let unsubscribe = onSnapshot(ref, (snapshot) => {

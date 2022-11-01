@@ -1,5 +1,8 @@
 import { Injectable } from "@angular/core";
+import { UserService } from "@services/user.service";
+import type { User } from "firebase/auth";
 import { set, ref as getRef, remove } from "firebase/database";
+import { combineLatest, filter, mergeMap, OperatorFunction } from "rxjs";
 import { AuthService } from "../auth.service";
 import { BaseCallService } from "./base";
 
@@ -19,7 +22,7 @@ export class CallService extends BaseCallService {
   private myUid: string | null = null;
   //public lastOffer?: CallInvitation;
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private userService: UserService) {
     super();
     this.authService.getUid().subscribe((uid) => {
       this.myUid = uid;
@@ -43,5 +46,12 @@ export class CallService extends BaseCallService {
     const theirRef = getRef(this.db, `${CallService.path}/${theirUid}`);
     const myRef = getRef(this.db, `${CallService.path}/${this.myUid}`);
     return Promise.all([remove(myRef), remove(theirRef)]);
+  }
+
+  public watchWhileIgnoringUnknownCallers() {
+    return this.authService.getAuthState().pipe(
+      filter((user) => Boolean(user)) as OperatorFunction<User | null, User>,
+      mergeMap((user) => combineLatest([this.watchForInvitations(), this.userService.watchUserDoc(user.uid)])),
+    );
   }
 }

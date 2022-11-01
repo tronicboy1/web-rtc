@@ -5,6 +5,7 @@ import { CallService } from "@services/call.service";
 import { UserService } from "@services/user.service";
 import type { Subscription } from "rxjs";
 import { CallQueryParameters } from "./app-routing.module";
+import "@web-components/base-modal";
 
 @Component({
   selector: "app-root",
@@ -16,6 +17,7 @@ export class AppComponent {
   public isAuth = false;
   private subscritions: Subscription[] = [];
   public email?: string;
+  public showAcceptCallModal = false;
 
   constructor(
     private authService: AuthService,
@@ -31,25 +33,29 @@ export class AppComponent {
     }
     /** navigate back to contacts on end of call */
     this.subscritions.push(this.callService.watchForCallEnd().subscribe(() => this.router.navigateByUrl("/contacts")));
-    this.authService.getAuthState().subscribe((user) => {
-      this.isAuth = Boolean(user);
-      if (!user) return this.handleSignOut();
-      /** set user status to online */
-      this.userService.setOnlineStatus(user.uid, "online");
-      this.email = user.email!;
-      this.subscritions.push(
-        this.callService.watchForInvitations().subscribe((invitation) => {
-          const queryParams: CallQueryParameters = {
-            "their-uid": invitation.sender,
-            "is-video": Number(invitation.isVideo),
-            polite: 1,
-          };
-          this.router.navigate(["/call"], {
-            queryParams,
-          });
-        }),
-      );
-    });
+    this.subscritions.push(
+      this.authService.getAuthState().subscribe((user) => {
+        this.isAuth = Boolean(user);
+        if (!user) return this.handleSignOut();
+        /** set user status to online */
+        this.userService.setOnlineStatus(user.uid, "online");
+        this.email = user.email!;
+      }),
+    );
+    this.subscritions.push(
+      this.callService.watchWhileIgnoringUnknownCallers().subscribe(([invitation, userData]) => {
+        const myContacts = userData.contacts ?? [];
+        if (!myContacts.includes(invitation.sender)) return;
+        const queryParams: CallQueryParameters = {
+          "their-uid": invitation.sender,
+          "is-video": Number(invitation.isVideo),
+          polite: 1,
+        };
+        this.router.navigate(["/call"], {
+          queryParams,
+        });
+      }),
+    );
   }
 
   ngOnDestroy(): void {
