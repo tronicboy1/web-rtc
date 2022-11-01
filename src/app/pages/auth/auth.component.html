@@ -1,9 +1,5 @@
-<base-modal
-  [show]="this.showSendEmailModal"
-  (modal-closed)="this.toggleSendEmailModal(false)"
-  id="email-login-modal"
-  modal-title="Send Login Email"
->
+<base-modal [show]="this.showSendEmailModal" (modal-closed)="this.toggleSendEmailModal(false)" id="email-login-modal"
+  modal-title="Send Login Email">
   <form (submit)="this.handleSendEmailSubmit($event)">
     <div class="form-group">
       <label for="email-login-email">Email</label>
@@ -16,12 +12,8 @@
   </form>
 </base-modal>
 
-<base-modal
-  [show]="this.showResetPasswordModal"
-  (modal-closed)="this.toggleResetPasswordModal(false)"
-  id="reset-password"
-  modal-title="Reset Password"
->
+<base-modal [show]="this.showResetPasswordModal" (modal-closed)="this.toggleResetPasswordModal(false)"
+  id="reset-password" modal-title="Reset Password">
   <form (submit)="this.handleResetPasswordSubmit($event)">
     <div class="form-group">
       <label for="reset-password-email">Email</label>
@@ -38,23 +30,12 @@
   <h1>Yobo</h1>
   <h3>A free peer to peer chat app.</h3>
   <nav class="button-group">
-    <button
-      [class.active]="this.mode === 'LOGIN'"
-      [disabled]="this.mode === 'LOGIN'"
-      class="button-left"
-      id="login-button"
-      type="button"
-      (click)="this.handleAuthNavClick('LOGIN')"
-    >
+    <button [class.active]="this.mode === 'LOGIN'" [disabled]="this.mode === 'LOGIN'" class="button-left"
+      id="login-button" type="button" (click)="this.handleAuthNavClick('LOGIN')">
       Login
     </button>
-    <button
-      [class.active]="this.mode === 'REGISTER'"
-      class="button-right"
-      id="register-button"
-      type="button"
-      (click)="this.handleAuthNavClick('REGISTER')"
-    >
+    <button [class.active]="this.mode === 'REGISTER'" class="button-right" id="register-button" type="button"
+      (click)="this.handleAuthNavClick('REGISTER')">
       Register
     </button>
   </nav>
@@ -79,15 +60,8 @@
       </div>
       <div class="form-group">
         <label for="password">Password</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          minlength="6"
-          maxlength="64"
-          required
-          autocomplete="new-password"
-        />
+        <input id="password" name="password" type="password" minlength="6" maxlength="64" required
+          autocomplete="new-password" />
       </div>
     </ng-template>
 
@@ -96,8 +70,8 @@
       <ng-template #submitText>Submit</ng-template>
     </button>
   </form>
-  <div id="third-party">
-    <google-icon></google-icon>
-  </div>
+  <!-- <div id="third-party">
+    <google-icon (click)="this.handleGoogleLoginClick()"></google-icon>
+  </div> -->
   <a (click)="this.toggleSendEmailModal(true)">Or Sign in with only your Email Address?</a>
 </div>

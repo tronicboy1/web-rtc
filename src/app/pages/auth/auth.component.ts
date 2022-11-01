@@ -50,8 +50,6 @@ export class AuthComponent implements OnInit {
     this.setLoading(this.authService.sendPasswordResetEmail(email)).then(() => (this.showResetPasswordModal = false));
   };
 
-  public handleGoogleLoginClick = () => {};
-
   private setLoading<T>(promise: Promise<T>) {
     this.loading = true;
     this.error = "";

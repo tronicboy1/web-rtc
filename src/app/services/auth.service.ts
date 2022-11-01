@@ -1,7 +1,5 @@
 import { Injectable } from "@angular/core";
-import { app } from "@custom-firebase/firebase";
 import {
-  getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithEmailLink,
