@@ -65,6 +65,30 @@ li:last-child {
   margin-bottom: 0;
 }
 
+li .activity {
+  position: absolute;
+  z-index: 1;
+  left: 1rem;
+  top: 1rem;
+  border: 1px transparent;
+  background-color: transparent;
+  border-radius: 50%;
+  padding: 1.5vw;
+}
+
+li .online {
+  background-color: rgb(99, 255, 47);
+  border-color: rgb(99, 255, 47);
+}
+li .away {
+  background-color: rgb(255, 247, 0);
+  border-color: rgb(255, 247, 0);
+}
+li .offline {
+  background-color: white;
+  border-color: white;
+}
+
 li span.contact-email {
   flex: 0 0 50%;
   text-align: left;

@@ -1,10 +1,11 @@
 import { Component, OnInit } from "@angular/core";
-import { Contacts, ContactService } from "@services/contact.service";
+import { ContactService } from "@services/contact.service";
 import { Subscription } from "rxjs";
 import { Utils } from "src/app/utils";
 import "@web-components/base-modal";
 import { Router } from "@angular/router";
 import { CallQueryParameters } from "src/app/app-routing.module";
+import { UserData } from "@services/user.service";
 
 @Component({
   selector: "app-contacts",
@@ -14,10 +15,10 @@ import { CallQueryParameters } from "src/app/app-routing.module";
 export class ContactsComponent implements OnInit {
   private subscriptions: Subscription[] = [];
   private errorTimeout?: ReturnType<typeof setTimeout>;
-  public contacts: Contacts = [];
+  public contacts: UserData[] = [];
   public loading = false;
   public error = "";
-  public emailToDelete = "";
+  public uidToDelete = "";
 
   constructor(private contactService: ContactService, private router: Router) {}
 
@@ -58,10 +59,10 @@ export class ContactsComponent implements OnInit {
     this.router.navigate(["/call"], { queryParams });
   };
 
-  public handlContactTileDeleteClick = (email: string) => (this.emailToDelete = email);
+  public handlContactTileDeleteClick = (uid: string) => (this.uidToDelete = uid);
   public handleDeleteContact = () => {
-    this.contactService.deleteContact(this.emailToDelete);
-    this.emailToDelete = "";
+    this.contactService.deleteContact(this.uidToDelete);
+    this.uidToDelete = "";
   };
-  public handleDeleteModalClosed = () => (this.emailToDelete = "");
+  public handleDeleteModalClosed = () => (this.uidToDelete = "");
 }
