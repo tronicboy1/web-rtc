@@ -23,7 +23,11 @@ export class ContactsComponent implements OnInit {
   constructor(private contactService: ContactService, private router: Router) {}
 
   ngOnInit(): void {
-    this.subscriptions.push(this.contactService.watchContacts().subscribe((contacts) => (this.contacts = contacts)));
+    this.subscriptions.push(
+      this.contactService.watchContacts().subscribe((contacts) => {
+        this.contacts = contacts;
+      }),
+    );
   }
 
   ngOnDestroy(): void {

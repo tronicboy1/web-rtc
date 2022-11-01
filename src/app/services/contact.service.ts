@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { User } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
-import { combineLatest, filter, mergeMap, OperatorFunction } from "rxjs";
+import { combineLatest, filter, map, mergeMap, of, OperatorFunction } from "rxjs";
 import { AuthService } from "./auth.service";
 import { UserService } from "./user.service";
 
@@ -17,7 +17,10 @@ export class ContactService extends UserService {
     return this.authService.getAuthState().pipe(
       filter((user) => Boolean(user)) as OperatorFunction<User | null, User>,
       mergeMap((user) => this.watchUserDoc(user.uid)),
-      mergeMap((userData) => combineLatest((userData.contacts ?? []).map((uid) => this.watchUserDoc(uid)))),
+      map((userData) => userData.contacts ?? []),
+      mergeMap((contacts) => {
+        return contacts.length ? combineLatest(contacts.map((uid) => this.watchUserDoc(uid))) : of([]);
+      }),
     );
   }
 
@@ -29,7 +32,7 @@ export class ContactService extends UserService {
       const ref = this.getDocRef();
       return Promise.all([this.getUserData(uid), this.userService.getTheirUid(email)]).then(([userData, newUid]) => {
         if (!userData) throw Error("uid was invalid");
-        if (userData.email === email) throw Error("You cannot add yourself.")
+        if (userData.email === email) throw Error("You cannot add yourself.");
         const oldContacts = userData.contacts ?? [];
         const alreadyHasContact = Boolean(oldContacts.find((contact) => contact === newUid));
         if (alreadyHasContact) throw Error("Contact already exists.");
