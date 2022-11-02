@@ -62,6 +62,7 @@ export class AppComponent {
     this.subscritions.forEach((sub) => sub.unsubscribe());
   }
 
+  /** beforeunload does not work on iOS */
   @HostListener("window:unload", ["$event"])
   public unloadHandler(event: Event) {
     /** Set user status to offline */

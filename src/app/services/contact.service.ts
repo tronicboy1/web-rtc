@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
-import { User } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
-import { combineLatest, filter, map, mergeMap, of, OperatorFunction } from "rxjs";
+import { combineLatest, map, mergeMap, of, } from "rxjs";
 import { AuthService } from "./auth.service";
 import { UserData, UserService } from "./user.service";
 
@@ -14,8 +13,7 @@ export class ContactService extends UserService {
   }
 
   public watchContacts() {
-    return this.authService.getAuthState().pipe(
-      filter((user) => Boolean(user)) as OperatorFunction<User | null, User>,
+    return this.authService.waitForUser().pipe(
       mergeMap((user) => this.watchUserDoc(user.uid)),
       map((userData) => userData.contacts ?? []),
       mergeMap((contacts) => (contacts.length ? combineLatest(contacts.map((uid) => this.watchUserDoc(uid))) : of([]))),

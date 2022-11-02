@@ -17,6 +17,7 @@ import { environment } from "../environments/environment";
     BrowserModule,
     AppRoutingModule,
     ServiceWorkerModule.register("custom-sw.js", {
+      /** Setting SW to true in dev will cause long reload on all changes. */
       enabled: environment.production,
       // Register the ServiceWorker as soon as the application is stable
       // or after 30 seconds (whichever comes first).
@@ -25,6 +26,7 @@ import { environment } from "../environments/environment";
   ],
   providers: [RtcService],
   bootstrap: [AppComponent],
+  /** Adding custom Elements Schema allows use of custom tags i.e. Web Components. */
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule {}

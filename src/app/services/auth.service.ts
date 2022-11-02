@@ -9,10 +9,13 @@ import {
   updatePassword,
   fetchSignInMethodsForEmail,
 } from "firebase/auth";
-import { map, Observable } from "rxjs";
+import { filter, map, Observable } from "rxjs";
+import type { OperatorFunction } from "rxjs";
 import type { User } from "firebase/auth";
 import { FirebaseAuth } from "@custom-firebase/inheritables/auth";
 import { UserService } from "./user.service";
+
+export type FilteredAuthState = OperatorFunction<User | null, User>;
 
 @Injectable({
   providedIn: "root",
@@ -69,6 +72,13 @@ export class AuthService extends FirebaseAuth {
       });
       return unsubscribe;
     });
+  }
+
+  /**
+   * Waits for auth state to be non-null User.
+   */
+  public waitForUser() {
+    return this.getAuthState().pipe(filter((user) => Boolean(user)) as FilteredAuthState);
   }
 
   public getEmail() {

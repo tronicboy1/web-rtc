@@ -7,6 +7,10 @@ import { FirebaseDatabase } from "@custom-firebase/inheritables/database";
 /**
  * This class is used to share logic with CallService in Angular and
  * CallObserver in the service worker.
+ *
+ * As it is used in the SW, App Check must not be initialized
+ * and unnecessary packages must not be included to reduce SW
+ * bundle size.
  */
 export class BaseCallService extends FirebaseDatabase {
   static path = "calls";
