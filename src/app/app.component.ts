@@ -31,17 +31,20 @@ export class AppComponent {
     private router: Router,
     private callService: CallService,
     private userService: UserService,
-    private rtcService: RtcService
+    private rtcService: RtcService,
   ) {}
 
   ngOnInit() {
+    /** Set ready state to false */
+    this.callService.setMyReadyState(false).subscribe();
     /** Get permission for notifications */
     if ("serviceWorker" in navigator && typeof Notification !== "undefined") {
       Notification.requestPermission();
     }
     /** navigate back to contacts on end of call */
     this.subscritions.push(
-      this.callService.watchForCallEnd().subscribe(() => {
+      this.rtcService.watchForEndOfCall().subscribe(() => {
+        console.log("END OF CALL")
         this.incomingCall = undefined;
         this.router.navigateByUrl("/contacts");
       }),

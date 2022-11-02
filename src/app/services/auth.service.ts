@@ -81,12 +81,8 @@ export class AuthService extends FirebaseAuth {
     return this.getAuthState().pipe(filter((user) => Boolean(user)) as FilteredAuthState);
   }
 
-  public getEmail() {
-    return this.getAuthState().pipe(map((user) => (user ? user.email : null)));
-  }
-
   public getUid() {
-    return this.getAuthState().pipe(map((user) => (user ? user.uid : null)));
+    return this.waitForUser().pipe(map((user) => user.uid));
   }
 
   public checkIfUserExists(email: string) {

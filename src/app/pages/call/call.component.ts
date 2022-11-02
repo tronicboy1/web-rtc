@@ -18,26 +18,26 @@ export class CallComponent implements OnInit {
 
   constructor(private route: ActivatedRoute, private router: Router, private rtcService: RtcService) {}
 
-  ngOnInit(): void {
-    setInterval(() => console.log(this.rtcService.theirMediaStream), 2000);
-  }
+  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     this.myVideo.nativeElement.toggleAttribute("muted", true);
     [(this.myVideo.nativeElement, this.theirVideo.nativeElement)].forEach((video) =>
       video.addEventListener("loadedmetadata", () => video.play()),
     );
-    this.myVideo.nativeElement.srcObject = this.rtcService.myMediaStream;
-    this.theirVideo.nativeElement.srcObject = this.rtcService.theirMediaStream;
-    const paramsSub = this.route.queryParams.subscribe((params) => {
-      this.isVideo = Boolean(Number(params["is-video"]));
-      const isCaller = !Boolean(Number(params["polite"]));
-      const theirUid = params["their-uid"];
-      if (isCaller) {
-        this.rtcService.makeOffer(theirUid, this.isVideo);
-      }
+    this.rtcService.preparePeerConnection().then(() => {
+      this.myVideo.nativeElement.srcObject = this.rtcService.myMediaStream;
+      this.theirVideo.nativeElement.srcObject = this.rtcService.theirMediaStream;
+      const paramsSub = this.route.queryParams.subscribe((params) => {
+        this.isVideo = Boolean(Number(params["is-video"]));
+        const isCaller = !Boolean(Number(params["polite"]));
+        const theirUid = params["their-uid"];
+        if (isCaller) {
+          this.rtcService.makeOffer(theirUid, this.isVideo);
+        }
+      });
+      this.subscriptions.push(paramsSub);
     });
-    this.subscriptions.push(paramsSub);
   }
 
   ngOnDestroy(): void {

@@ -3,7 +3,7 @@ import { FirebaseDatabase } from "@custom-firebase/inheritables/database";
 import { set, ref as getRef, remove, onValue } from "firebase/database";
 import { filter, map, mergeMap, Observable, OperatorFunction, take } from "rxjs";
 import { AuthService } from "./auth.service";
-import { CallService, Content } from "./call.service";
+import { CallService } from "./call.service";
 
 type Message = { sender: string; value: string; isVideo: boolean };
 type ParsedMessage = {
@@ -11,14 +11,20 @@ type ParsedMessage = {
   sender: string;
   isVideo: boolean;
 };
+type Content = {
+  description?: RTCSessionDescription;
+  candidate?: RTCIceCandidate | null;
+  offer?: RTCSessionDescriptionInit;
+  answer?: RTCSessionDescriptionInit;
+};
 
 @Injectable({
   providedIn: "root",
 })
 export class RtcService extends FirebaseDatabase {
-  public myMediaStream = new MediaStream();
-  public theirMediaStream = new MediaStream();
-  private peerConnection = new RTCPeerConnection();
+  public myMediaStream!: MediaStream;
+  public theirMediaStream!: MediaStream;
+  private peerConnection!: RTCPeerConnection;
   public dataChannel: RTCDataChannel | null = null;
   private theirUid?: string;
   private isVideo = false;
@@ -27,12 +33,9 @@ export class RtcService extends FirebaseDatabase {
 
   constructor(private callService: CallService, private authService: AuthService) {
     super();
-    this.preparePeerConnection();
     this.watch().subscribe((data) => {
-      console.log("RTC message received");
       this.handleMessage(data);
     });
-    console.log("RTC Service started");
   }
 
   /**
@@ -61,29 +64,37 @@ export class RtcService extends FirebaseDatabase {
   ];
 
   public close() {
-    if (this.theirUid) this.callService.cleanUp(this.theirUid);
+    if (this.theirUid) {
+      this.callService.cleanUp(this.theirUid).subscribe();
+    }
     this.peerConnection.close();
     [this.myMediaStream, this.theirMediaStream].forEach((stream) =>
       stream.getTracks().forEach((track) => track.stop()),
     );
-    this.preparePeerConnection();
+    this.callService.setMyReadyState(false).subscribe();
   }
 
-  private watch(): Observable<ParsedMessage> {
+  private observeRtcData() {
     return this.authService.getUid().pipe(
       filter((user) => user !== null) as OperatorFunction<string | null, string>,
       mergeMap(
         (uid) =>
-          new Observable<Message>((observer) => {
+          new Observable<Message | null>((observer) => {
             const ref = getRef(this.db, `${RtcService.path}/${uid}`);
             let unsubscribe = onValue(ref, (snapshot) => {
               const data = snapshot.val() as Message | null;
-              if (!data) return;
               observer.next(data);
             });
             return unsubscribe;
           }),
       ),
+    );
+  }
+
+  /** Observers RTCPeerConnection Data sent to user through Firebase. */
+  private watch(): Observable<ParsedMessage> {
+    return this.observeRtcData().pipe(
+      filter((message) => Boolean(message)) as OperatorFunction<Message | null, Message>,
       map((data) => {
         const parsedValue = JSON.parse(data.value) as Content;
         return { ...data, value: parsedValue };
@@ -91,12 +102,17 @@ export class RtcService extends FirebaseDatabase {
     );
   }
 
+  public watchForEndOfCall() {
+    return this.observeRtcData().pipe(filter((message) => !Boolean(message)) as OperatorFunction<Message | null, null>);
+  }
+
+  /** Sends RTCPeerConnection Data through Firebase. */
   private send(theirUid: string, value: Content, isVideo: boolean) {
     if (!theirUid || typeof theirUid !== "string" || theirUid.length < 4)
       throw TypeError("Recipient must have an Id greater than 4 characters.");
     return this.authService
       .getUid()
-      .pipe(filter((uid) => Boolean(uid)) as OperatorFunction<string | null, string>, take(1))
+      .pipe(take(1))
       .subscribe((uid) => {
         const message: Message = { sender: uid, value: JSON.stringify(value), isVideo };
         const ref = getRef(this.db, `${RtcService.path}/${theirUid}`);
@@ -138,9 +154,19 @@ export class RtcService extends FirebaseDatabase {
     this.dataChannel = this.peerConnection.createDataChannel("messages", { negotiated: false });
     this.dataChannel.addEventListener("error", (event) => console.error("Data Channel Error", event));
     this.dataChannel.addEventListener("open", this.handleDataChannelOpening);
-    const offer = await this.peerConnection.createOffer();
-    await this.peerConnection.setLocalDescription(offer);
-    this.send(this.theirUid, { description: this.peerConnection.localDescription!, offer }, this.isVideo);
+    await this.callService.send(theirUid, isVideo);
+    this.callService
+      .watchTheirReadyState(theirUid)
+      .pipe(
+        filter((state) => Boolean(state)),
+        take(1),
+      )
+      .subscribe(async (_state) => {
+        console.log("RTC: Ready State received.", _state);
+        const offer = await this.peerConnection.createOffer();
+        await this.peerConnection.setLocalDescription(offer);
+        this.send(theirUid, { description: this.peerConnection.localDescription!, offer }, this.isVideo);
+      });
   }
 
   private handleDataChannelOpening: EventListener = () => {
@@ -167,7 +193,7 @@ export class RtcService extends FirebaseDatabase {
     });
   }
 
-  private preparePeerConnection() {
+  public async preparePeerConnection() {
     this.myMediaStream = new MediaStream();
     this.theirMediaStream = new MediaStream();
     this.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
@@ -177,6 +203,7 @@ export class RtcService extends FirebaseDatabase {
       console.log("Candidate state ", this.peerConnection.iceConnectionState),
     );
     this.peerConnection.addEventListener("datachannel", this.handleDataChannel);
+    this.callService.setMyReadyState(true).subscribe();
   }
 
   private handleTrackEvent = (event: RTCTrackEvent) => {
