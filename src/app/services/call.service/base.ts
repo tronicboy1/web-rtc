@@ -4,9 +4,14 @@ import type { User } from "firebase/auth";
 import { CallInvitation, Content, Message } from ".";
 import { FirebaseDatabase } from "@custom-firebase/inheritables/database";
 
+/**
+ * This class is used to share logic with CallService in Angular and
+ * CallObserver in the service worker.
+ */
 export class BaseCallService extends FirebaseDatabase {
   static path = "calls";
 
+  /** This must be replaced in inherited files */
   protected getAuthState() {
     return new Observable<User | null>();
   }
