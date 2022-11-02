@@ -18,7 +18,9 @@ export class CallComponent implements OnInit {
 
   constructor(private route: ActivatedRoute, private router: Router, private rtcService: RtcService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    setInterval(() => console.log(this.rtcService.theirMediaStream), 2000);
+  }
 
   ngAfterViewInit(): void {
     this.myVideo.nativeElement.toggleAttribute("muted", true);

@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { UserService } from "@services/user.service";
 import { set, ref as getRef, remove } from "firebase/database";
-import { combineLatest, mergeMap, } from "rxjs";
+import { combineLatest, filter, map, mergeMap, of } from "rxjs";
 import { AuthService } from "../auth.service";
 import { BaseCallService } from "./base";
 
@@ -47,9 +47,21 @@ export class CallService extends BaseCallService {
     return Promise.all([remove(myRef), remove(theirRef)]);
   }
 
-  public watchWhileIgnoringUnknownCallers() {
-    return this.authService
-      .waitForUser()
-      .pipe(mergeMap((user) => combineLatest([this.watchForInvitations(), this.userService.watchUserDoc(user.uid)])));
+  private watchWithCallerDetails() {
+    return this.watchForInvitations().pipe(
+      mergeMap((invitation) => combineLatest([this.userService.watchUserDoc(invitation.sender), of(invitation)])),
+      map(([callerData, invitation]) => ({ ...invitation, ...callerData })),
+    );
+  }
+
+  public watchWithDetailsWhileIgnoringUnknownCallers() {
+    return this.authService.waitForUser().pipe(
+      mergeMap((user) => combineLatest([this.watchWithCallerDetails(), this.userService.watchUserDoc(user.uid)])),
+      filter(([invitation, myUserData]) => {
+        const myContacts = myUserData.contacts ?? [];
+        return myContacts.includes(invitation.sender);
+      }),
+      map(([invitation]) => invitation),
+    );
   }
 }

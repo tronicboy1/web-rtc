@@ -6,6 +6,7 @@ import { UserService } from "@services/user.service";
 import type { Subscription } from "rxjs";
 import { CallQueryParameters } from "./app-routing.module";
 import "@web-components/base-modal";
+import { RtcService } from "@services/rtc.service";
 
 @Component({
   selector: "app-root",
@@ -16,14 +17,21 @@ export class AppComponent {
   title = "angular";
   public isAuth = false;
   private subscritions: Subscription[] = [];
+  /** Displays email in nav bar. */
   public email?: string;
-  public showAcceptCallModal = false;
+  /** Opens modal if has incoming call. */
+  public incomingCall?: CallQueryParameters & { email: string };
+  get incomingCallTitle(): string {
+    if (!this.incomingCall) return "";
+    return `Accept ${this.incomingCall?.["is-video"] ? "video" : "audio"} call from ${this.incomingCall.email}?`;
+  }
 
   constructor(
     private authService: AuthService,
     private router: Router,
     private callService: CallService,
     private userService: UserService,
+    private rtcService: RtcService
   ) {}
 
   ngOnInit() {
@@ -32,7 +40,12 @@ export class AppComponent {
       Notification.requestPermission();
     }
     /** navigate back to contacts on end of call */
-    this.subscritions.push(this.callService.watchForCallEnd().subscribe(() => this.router.navigateByUrl("/contacts")));
+    this.subscritions.push(
+      this.callService.watchForCallEnd().subscribe(() => {
+        this.incomingCall = undefined;
+        this.router.navigateByUrl("/contacts");
+      }),
+    );
     this.subscritions.push(
       this.authService.getAuthState().subscribe((user) => {
         this.isAuth = Boolean(user);
@@ -43,17 +56,13 @@ export class AppComponent {
       }),
     );
     this.subscritions.push(
-      this.callService.watchWhileIgnoringUnknownCallers().subscribe(([invitation, userData]) => {
-        const myContacts = userData.contacts ?? [];
-        if (!myContacts.includes(invitation.sender)) return;
-        const queryParams: CallQueryParameters = {
+      this.callService.watchWithDetailsWhileIgnoringUnknownCallers().subscribe((invitation) => {
+        this.incomingCall = {
           "their-uid": invitation.sender,
           "is-video": Number(invitation.isVideo),
           polite: 1,
+          email: invitation.email,
         };
-        this.router.navigate(["/call"], {
-          queryParams,
-        });
       }),
     );
   }
@@ -76,4 +85,15 @@ export class AppComponent {
   }
 
   public handleLogoutClick = () => this.authService.signOutUser();
+  public handleModalClose = () => {
+    if (!this.incomingCall) return;
+    this.callService.cleanUp(this.incomingCall["their-uid"]);
+    this.incomingCall = undefined;
+  };
+  public handleCallAnswer = () => {
+    this.router.navigate(["/call"], {
+      queryParams: this.incomingCall,
+    });
+    this.incomingCall = undefined;
+  };
 }

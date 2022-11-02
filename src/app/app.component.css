@@ -65,3 +65,22 @@ a {
     color: white;
   }
 }
+
+button {
+  border-radius: var(--radius);
+  background-color: var(--highlight-color);
+  border: 1px solid var(--highlight-color);
+  cursor: pointer;
+}
+
+.contact-buttons {
+  display: flex;
+  max-width: 100%;
+  height: auto;
+  flex-wrap: wrap;
+}
+
+.contact-buttons button {
+  flex: 1 1 90%;
+  margin: 4px 4px;
+}

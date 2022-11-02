@@ -1,10 +1,21 @@
 import { Injectable } from "@angular/core";
-import { CallInvitation, CallService } from "./call.service";
+import { FirebaseDatabase } from "@custom-firebase/inheritables/database";
+import { set, ref as getRef, remove, onValue } from "firebase/database";
+import { filter, map, mergeMap, Observable, OperatorFunction, take } from "rxjs";
+import { AuthService } from "./auth.service";
+import { CallService, Content } from "./call.service";
+
+type Message = { sender: string; value: string; isVideo: boolean };
+type ParsedMessage = {
+  value: Content;
+  sender: string;
+  isVideo: boolean;
+};
 
 @Injectable({
   providedIn: "root",
 })
-export class RtcService {
+export class RtcService extends FirebaseDatabase {
   public myMediaStream = new MediaStream();
   public theirMediaStream = new MediaStream();
   private peerConnection = new RTCPeerConnection();
@@ -12,11 +23,16 @@ export class RtcService {
   private theirUid?: string;
   private isVideo = false;
 
-  constructor(private callService: CallService) {
+  static path = "rtc";
+
+  constructor(private callService: CallService, private authService: AuthService) {
+    super();
     this.preparePeerConnection();
-    this.callService.watch().subscribe((data) => {
+    this.watch().subscribe((data) => {
+      console.log("RTC message received");
       this.handleMessage(data);
     });
+    console.log("RTC Service started");
   }
 
   /**
@@ -53,7 +69,43 @@ export class RtcService {
     this.preparePeerConnection();
   }
 
-  private handleMessage: (data: CallInvitation) => Promise<void> = async ({ value, isVideo, sender }) => {
+  private watch(): Observable<ParsedMessage> {
+    return this.authService.getUid().pipe(
+      filter((user) => user !== null) as OperatorFunction<string | null, string>,
+      mergeMap(
+        (uid) =>
+          new Observable<Message>((observer) => {
+            const ref = getRef(this.db, `${RtcService.path}/${uid}`);
+            let unsubscribe = onValue(ref, (snapshot) => {
+              const data = snapshot.val() as Message | null;
+              if (!data) return;
+              observer.next(data);
+            });
+            return unsubscribe;
+          }),
+      ),
+      map((data) => {
+        const parsedValue = JSON.parse(data.value) as Content;
+        return { ...data, value: parsedValue };
+      }),
+    );
+  }
+
+  private send(theirUid: string, value: Content, isVideo: boolean) {
+    if (!theirUid || typeof theirUid !== "string" || theirUid.length < 4)
+      throw TypeError("Recipient must have an Id greater than 4 characters.");
+    return this.authService
+      .getUid()
+      .pipe(filter((uid) => Boolean(uid)) as OperatorFunction<string | null, string>, take(1))
+      .subscribe((uid) => {
+        const message: Message = { sender: uid, value: JSON.stringify(value), isVideo };
+        const ref = getRef(this.db, `${RtcService.path}/${theirUid}`);
+        set(ref, message);
+      });
+  }
+
+  private handleMessage = async (data: ParsedMessage) => {
+    const { value, isVideo, sender } = data;
     this.theirUid = sender;
     this.isVideo = isVideo;
     const { offer, answer, candidate, description } = value;
@@ -64,7 +116,8 @@ export class RtcService {
       await this.peerConnection.setLocalDescription(answer);
       const desciption = this.peerConnection.localDescription;
       if (!desciption) throw TypeError("Local Description not set.");
-      return this.callService.send(this.theirUid, { description, answer }, this.isVideo);
+      this.send(this.theirUid, { description, answer }, this.isVideo);
+      return;
     }
     if (answer) {
       await this.peerConnection.setRemoteDescription(answer);
@@ -87,7 +140,7 @@ export class RtcService {
     this.dataChannel.addEventListener("open", this.handleDataChannelOpening);
     const offer = await this.peerConnection.createOffer();
     await this.peerConnection.setLocalDescription(offer);
-    this.callService.send(this.theirUid, { description: this.peerConnection.localDescription!, offer }, this.isVideo);
+    this.send(this.theirUid, { description: this.peerConnection.localDescription!, offer }, this.isVideo);
   }
 
   private handleDataChannelOpening: EventListener = () => {
@@ -138,7 +191,7 @@ export class RtcService {
     const { candidate } = event;
     if (!candidate) return;
     if (!this.theirUid) throw TypeError("Their username was undefined.");
-    this.callService.send(this.theirUid, { candidate }, this.isVideo);
+    this.send(this.theirUid, { candidate }, this.isVideo);
   };
 
   private handleDataChannel = (event: RTCDataChannelEvent) => {
