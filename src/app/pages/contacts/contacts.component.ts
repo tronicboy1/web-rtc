@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { ContactService } from "@services/contact.service";
-import { Subscription } from "rxjs";
+import { Subject, Subscription } from "rxjs";
 import { Utils } from "src/app/utils";
 import "@web-components/base-modal";
 import { Router } from "@angular/router";
@@ -19,12 +19,13 @@ export class ContactsComponent implements OnInit {
   public loading = false;
   public error = "";
   public uidToDelete = "";
+  private deleteSubject = new Subject<void>()
 
   constructor(private contactService: ContactService, private router: Router) {}
 
   ngOnInit(): void {
     this.subscriptions.push(
-      this.contactService.watchContacts().subscribe((contacts) => {
+      this.contactService.watchContacts(this.deleteSubject).subscribe((contacts) => {
         this.contacts = contacts;
       }),
     );
@@ -66,6 +67,7 @@ export class ContactsComponent implements OnInit {
   public handlContactTileDeleteClick = (uid: string) => (this.uidToDelete = uid);
   public handleDeleteContact = () => {
     this.contactService.deleteContact(this.uidToDelete);
+    this.deleteSubject.next();
     this.uidToDelete = "";
   };
   public handleDeleteModalClosed = () => (this.uidToDelete = "");
