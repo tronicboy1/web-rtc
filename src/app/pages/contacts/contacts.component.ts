@@ -20,7 +20,7 @@ export class ContactsComponent implements OnInit {
   public error = "";
   public uidToDelete = "";
   /** Must manually stop observables after any deletion else you get ghost contacts. */
-  private deleteSubject = new Subject<void>()
+  private deleteSubject = new Subject<string>()
 
   constructor(private contactService: ContactService, private router: Router) {}
 
@@ -68,7 +68,7 @@ export class ContactsComponent implements OnInit {
   public handlContactTileDeleteClick = (uid: string) => (this.uidToDelete = uid);
   public handleDeleteContact = () => {
     this.contactService.deleteContact(this.uidToDelete);
-    this.deleteSubject.next();
+    this.deleteSubject.next(this.uidToDelete);
     this.uidToDelete = "";
   };
   public handleDeleteModalClosed = () => (this.uidToDelete = "");
