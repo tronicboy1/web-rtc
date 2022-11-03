@@ -51,21 +51,16 @@ export class CallService extends BaseCallService {
 
   private watchWithCallerDetails() {
     return this.watch().pipe(
-      mergeMap((invitation) => combineLatest([this.userService.watchUserDoc(invitation.sender)
-        .pipe(take(1))
-        ,
-         of(invitation)])),
+      mergeMap((invitation) =>
+        combineLatest([this.userService.watchUserDoc(invitation.sender).pipe(take(1)), of(invitation)]),
+      ),
       map(([callerData, invitation]) => ({ ...invitation, ...callerData })),
     );
   }
 
   public watchWithDetailsWhileIgnoringUnknownCallers() {
     return this.authService.waitForUser().pipe(
-      mergeMap((user) =>
-        combineLatest([this.watchWithCallerDetails(), this.userService.watchUserDoc(user.uid)
-          //.pipe(take(1))
-        ]),
-      ),
+      mergeMap((user) => combineLatest([this.watchWithCallerDetails(), this.userService.watchUserDoc(user.uid)])),
       filter(([invitation, myUserData]) => {
         const myContacts = myUserData.contacts ?? [];
         return myContacts.includes(invitation.sender);
