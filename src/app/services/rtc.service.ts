@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { FirebaseDatabase } from "@custom-firebase/inheritables/database";
-import { set, ref as getRef, remove, onValue } from "firebase/database";
+import { set, ref as getRef, onValue } from "firebase/database";
 import { filter, map, mergeMap, Observable, OperatorFunction, take } from "rxjs";
 import { AuthService } from "./auth.service";
 import { CallService } from "./call.service";
