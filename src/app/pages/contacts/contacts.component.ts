@@ -19,6 +19,7 @@ export class ContactsComponent implements OnInit {
   public loading = false;
   public error = "";
   public uidToDelete = "";
+  /** Must manually stop observables after any deletion else you get ghost contacts. */
   private deleteSubject = new Subject<void>()
 
   constructor(private contactService: ContactService, private router: Router) {}

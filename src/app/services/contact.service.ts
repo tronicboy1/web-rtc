@@ -19,7 +19,14 @@ export class ContactService extends UserService {
       tap((contacts) => console.log("CONTACTS RESET", contacts)),
       mergeMap((contacts) =>
         contacts.length
-          ? combineLatest(contacts.map((uid) => this.watchUserDoc(uid).pipe(takeUntil(subject))))
+          ? combineLatest(
+              contacts.map((uid) =>
+                this.watchUserDoc(uid).pipe(
+                  /** Must manually stop observables after any deletion else you get ghost contacts. */
+                  takeUntil(subject),
+                ),
+              ),
+            )
           : of([]),
       ),
       map((contactsWithData) =>
