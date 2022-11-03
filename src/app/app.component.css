@@ -83,4 +83,5 @@ button {
 .contact-buttons button {
   flex: 1 1 90%;
   margin: 4px 4px;
+  height: 80px;
 }
