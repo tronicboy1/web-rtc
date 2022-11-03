@@ -18,7 +18,14 @@ export class CallComponent implements OnInit {
 
   constructor(private route: ActivatedRoute, private router: Router, private rtcService: RtcService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    /** fix ExpressionChangedAfterItHasBeenCheckedError */
+    this.subscriptions.push(
+      this.route.queryParams.subscribe((params) => {
+        this.isVideo = Boolean(Number(params["is-video"]));
+      }),
+    );
+  }
 
   ngAfterViewInit(): void {
     this.myVideo.nativeElement.toggleAttribute("muted", true);
@@ -29,7 +36,6 @@ export class CallComponent implements OnInit {
       this.myVideo.nativeElement.srcObject = this.rtcService.myMediaStream;
       this.theirVideo.nativeElement.srcObject = this.rtcService.theirMediaStream;
       const paramsSub = this.route.queryParams.subscribe((params) => {
-        this.isVideo = Boolean(Number(params["is-video"]));
         const isCaller = !Boolean(Number(params["polite"]));
         const theirUid = params["their-uid"];
         if (isCaller) {

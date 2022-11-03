@@ -74,6 +74,7 @@ export class AppComponent {
   }
 
   /** beforeunload does not work on iOS */
+  @HostListener("window:beforeunload", ["$event"])
   @HostListener("window:unload", ["$event"])
   public unloadHandler(event: Event) {
     /** Set user status to offline */
