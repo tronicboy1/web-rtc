@@ -26,9 +26,7 @@ export class MessageBox extends LitElement {
   }
 
   private handleIncomingMessage = (event: MessageEvent<string>) => {
-    console.log("Message Received: ", event);
     const data = JSON.parse(event.data) as DecodedMessage;
-    console.log(data);
     this.messages = [...this.messages, data];
     this.ul.scroll({ top: -1 });
   };

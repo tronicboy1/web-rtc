@@ -95,7 +95,6 @@ export class CallService extends BaseCallService {
         ref,
         (snapshot) => {
           const data = snapshot.val() as ReadyState;
-          console.log("CALL: Ready state received", data);
           observer.next(data);
         },
         observer.error,

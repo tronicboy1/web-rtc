@@ -44,7 +44,6 @@ export class AppComponent {
     /** navigate back to contacts on end of call */
     this.subscritions.push(
       this.rtcService.watchForEndOfCall().subscribe(() => {
-        console.log("END OF CALL")
         this.incomingCall = undefined;
         this.router.navigateByUrl("/contacts");
       }),

@@ -12,7 +12,7 @@ self.addEventListener("install", (event) => {
 
 const callObserver = new CallObserver();
 
-callObserver.watchForInvitations().subscribe((invite) => {
+callObserver.watch().subscribe((invite) => {
   const url = new URL(self.location.origin);
   url.pathname = "/call";
   const parameters: CallQueryParameters = { "is-video": Number(invite.isVideo), "their-uid": invite.sender, polite: 0 };

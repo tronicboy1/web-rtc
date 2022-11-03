@@ -128,7 +128,6 @@ export class WebRTC extends LitElement {
   };
 
   private handleDataChannel = (event: RTCDataChannelEvent) => {
-    console.log("DataChannel Event", event);
     this.dataChannel = event.channel;
     this.dataChannel.addEventListener("error", (event) => console.error("Data Channel Error", event));
     this.dataChannel.addEventListener("open", this.handleDataChannelOpening);

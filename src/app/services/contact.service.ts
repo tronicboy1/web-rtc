@@ -16,7 +16,6 @@ export class ContactService extends UserService {
     return this.authService.waitForUser().pipe(
       mergeMap((user) => this.watchUserDoc(user.uid)),
       map((userData) => userData.contacts ?? []),
-      tap((contacts) => console.log("CONTACTS RESET", contacts)),
       mergeMap((contacts) =>
         contacts.length
           ? combineLatest(
@@ -27,11 +26,11 @@ export class ContactService extends UserService {
                 ),
               ),
             )
-          : of([]),
+          : /** Must emit empty array if no contacts are left, else old contact will remain */
+            of([]),
       ),
       map((contactsWithData) =>
         contactsWithData.map((contact) => {
-          console.log("CONTACT", contact);
           const theirContactsArray = contact.contacts ?? [];
           const hasMyContact = theirContactsArray.includes(this.authService.user!.uid);
           const unknownStatusContact: UserData = { ...contact, status: "unknown" };

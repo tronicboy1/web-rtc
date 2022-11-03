@@ -162,7 +162,6 @@ export class RtcService extends FirebaseDatabase {
         take(1),
       )
       .subscribe(async (_state) => {
-        console.log("RTC: Ready State received.", _state);
         const offer = await this.peerConnection.createOffer();
         await this.peerConnection.setLocalDescription(offer);
         this.send(theirUid, { description: this.peerConnection.localDescription!, offer }, this.isVideo);
@@ -199,9 +198,6 @@ export class RtcService extends FirebaseDatabase {
     this.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
     this.peerConnection.addEventListener("track", this.handleTrackEvent);
     this.peerConnection.addEventListener("icecandidate", this.handleIceCandidateEvent);
-    this.peerConnection.addEventListener("iceconnectionstatechange", () =>
-      console.log("Candidate state ", this.peerConnection.iceConnectionState),
-    );
     this.peerConnection.addEventListener("datachannel", this.handleDataChannel);
     this.callService.setMyReadyState(true).subscribe();
   }
