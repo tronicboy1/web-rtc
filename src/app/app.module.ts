@@ -1,5 +1,6 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -15,6 +16,7 @@ import { environment } from "../environments/environment";
   declarations: [AppComponent, AuthComponent, PageNotFoundComponent, ContactsComponent, CallComponent],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     ServiceWorkerModule.register("custom-sw.js", {
       /** Setting SW to true in dev will cause long reload on all changes. */

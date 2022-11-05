@@ -8,7 +8,9 @@
   </ul>
 </nav>
 <div *ngIf="this.isAuth" id="padding"></div>
-<router-outlet></router-outlet>
+<div [@routeAnimations]="getRouteAnimationData()">
+  <router-outlet></router-outlet>
+</div>
 <base-modal [attr.modal-title]="this.incomingCallTitle" (modal-closed)="this.handleModalClose()"
   [show]="this.incomingCall">
   <div class="contact-buttons">

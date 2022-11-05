@@ -1,5 +1,5 @@
 import { Component, HostListener } from "@angular/core";
-import { Router } from "@angular/router";
+import { ChildrenOutletContexts, Router } from "@angular/router";
 import { AuthService } from "@services/auth.service";
 import { CallService } from "@services/call.service";
 import { UserService } from "@services/user.service";
@@ -7,11 +7,13 @@ import type { Subscription } from "rxjs";
 import { CallQueryParameters } from "./app-routing.module";
 import "@web-components/base-modal";
 import { RtcService } from "@services/rtc.service";
+import { slideInAnimation } from "./animations";
 
 @Component({
   selector: "app-root",
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.css"],
+  animations: [slideInAnimation],
 })
 export class AppComponent {
   title = "angular";
@@ -32,6 +34,7 @@ export class AppComponent {
     private callService: CallService,
     private userService: UserService,
     private rtcService: RtcService,
+    private contexts: ChildrenOutletContexts,
   ) {}
 
   ngOnInit() {
@@ -99,4 +102,7 @@ export class AppComponent {
     });
     this.incomingCall = undefined;
   };
+  public getRouteAnimationData() {
+    return this.contexts.getContext("primary")?.route?.snapshot?.data?.["animation"];
+  }
 }

@@ -9,9 +9,14 @@ import { ContactsComponent } from "./pages/contacts/contacts.component";
 export type CallQueryParameters = { "their-uid": string; polite: number; "is-video": number };
 
 const routes: Routes = [
-  { path: "contacts", component: ContactsComponent, canActivate: [AuthGuard] },
-  { path: "auth", component: AuthComponent },
-  { path: "call", component: CallComponent, canActivate: [AuthGuard] },
+  {
+    path: "contacts",
+    component: ContactsComponent,
+    canActivate: [AuthGuard],
+    data: { animation: ContactsComponent.name },
+  },
+  { path: "auth", component: AuthComponent, data: { animation: AuthComponent.name } },
+  { path: "call", component: CallComponent, canActivate: [AuthGuard], data: { animation: CallComponent.name } },
   { path: "", redirectTo: "/auth", pathMatch: "full" },
   { path: "**", component: PageNotFoundComponent },
 ];

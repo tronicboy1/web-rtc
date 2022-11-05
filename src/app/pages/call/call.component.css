@@ -21,9 +21,18 @@ video {
   margin: auto;
 }
 
+:host {
+  position: relative;
+  height: calc(100vh - 50px);
+  width: 100vw;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+
 #call-box {
-  position: fixed;
-  top: 60px;
+  position: absolute;
+  top: 10px;
   left: 0;
   right: 0;
   bottom: 10px;
