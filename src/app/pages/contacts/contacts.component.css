@@ -6,15 +6,18 @@ form input {
   font-size: large;
   flex: 1;
   outline: none;
+  margin: 0;
 }
 
 form button {
-  padding: 0.25rem 0.5rem;
   color: white;
   border-radius: 0;
   border-bottom-right-radius: var(--radius);
   border-top-right-radius: var(--radius);
   margin: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   flex: 0 1 20%;
 }
 
