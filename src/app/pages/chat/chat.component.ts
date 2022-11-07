@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { AuthService } from "@services/auth.service";
-import { ChatService, DetailedMessage } from "@services/chat.service";
+import { ChatService, DetailedMessageWithUserData } from "@services/chat.service";
 import { map, mergeMap, Subscription, take, finalize, forkJoin } from "rxjs";
 
 @Component({
@@ -11,7 +11,7 @@ import { map, mergeMap, Subscription, take, finalize, forkJoin } from "rxjs";
 })
 export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
   private subscriptions: Subscription[] = [];
-  public messages: DetailedMessage[] = [];
+  public messages: DetailedMessageWithUserData[] = [];
   @ViewChild("messageList")
   private ul!: ElementRef<HTMLUListElement>;
   private mutationObserver: MutationObserver;
@@ -70,9 +70,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
   private mutationObserverCallback: MutationCallback = (records) =>
     records.forEach((record) => {
       if (record.type !== "childList") return;
-      record.addedNodes.forEach((node) => {
+      record.addedNodes.forEach((node, i) => {
         if (!(node instanceof HTMLLIElement)) throw TypeError("Can only watch LI.");
         this.intersectionObserver.observe(node);
+        if (i === record.addedNodes.length - 1) {
+          node.scrollIntoView();
+        }
       });
       record.removedNodes.forEach((node) => {
         if (!(node instanceof HTMLLIElement)) throw TypeError("Can only watch LI.");

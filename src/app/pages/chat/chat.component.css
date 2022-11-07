@@ -1,0 +1,60 @@
+:host {
+  position: relative;
+  height: calc(100vh - 50px);
+  width: 100vw;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+ul {
+  position: absolute;
+  top: 0px;
+  bottom: 104px;
+  left: 0;
+  right: 0;
+  list-style-type: none;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+li {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  align-items: flex-end;
+  border: 1px var(--secondary-color) solid;
+  background: var(--secondary-color);
+  border-radius: 8px;
+  padding: 0.75rem;
+  transition: all 0.2s;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  font-size: 1.8rem;
+  user-select: none;
+  -webkit-user-select: none;
+}
+li:last-child {
+  margin-bottom: 0;
+}
+
+li h5 {
+  text-align: left;
+  margin-top: 0;
+  margin-bottom: 0.25rem;
+}
+
+li p {
+  font-size: 1rem;
+}
+
+.my-message {
+  align-items: flex-start;
+}
+
+#send-form {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+}

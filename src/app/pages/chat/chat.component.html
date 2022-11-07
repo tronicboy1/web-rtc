@@ -1,10 +1,11 @@
 <ul class="card" #messageList>
   <li *ngFor="let message of this.messages" [attr.data-message-id]="message.id"
     [attr.data-viewed]="message.viewed | booleanToNumber">
-    Sent By: {{ message.sender }}<br>Message: {{ message.message }}
+    <h5>{{ message.email }}</h5>
+    <p>{{ message.message }}</p>
   </li>
 </ul>
-<div class="card">
+<div class="card" id="send-form">
   <form (submit)="this.handleSendMessage($event)">
     <input type="text" name="message" id="message" required>
     <button type="submit">Send</button>

@@ -16,8 +16,9 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
-import { map, mergeMap, Observable, take, of } from "rxjs";
+import { map, mergeMap, Observable, take, of, combineLatest } from "rxjs";
 import { AuthService } from "./auth.service";
+import { UserData, UserService } from "./user.service";
 
 /**
  * Firestore Collection Structure:
@@ -41,6 +42,7 @@ export type Message = {
   readBy: string[];
 };
 export type DetailedMessage = Message & { id: string; viewed: boolean };
+export type DetailedMessageWithUserData = DetailedMessage & UserData;
 
 @Injectable({
   providedIn: "root",
@@ -50,7 +52,7 @@ export class ChatService extends FirebaseFirestore {
   static messagesPath = "messages";
   private roomsRef = collection(this.firestore, ChatService.roomsPath);
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private userService: UserService) {
     super();
   }
 
@@ -141,7 +143,7 @@ export class ChatService extends FirebaseFirestore {
     );
   }
 
-  public watchMessagesByRoomId(roomId: string): Observable<DetailedMessage[]> {
+  public watchMessagesByRoomId(roomId: string): Observable<DetailedMessageWithUserData[]> {
     let myUid: string;
     return this.authService.getUid().pipe(
       mergeMap((uid) => {
@@ -159,6 +161,15 @@ export class ChatService extends FirebaseFirestore {
           const viewed = data.sender === myUid || data.readBy.includes(myUid);
           return { ...data, id, viewed };
         }),
+      ),
+      mergeMap((docs) => {
+        const messagesWithUserDetailsObservables = docs.map((doc) =>
+          combineLatest([of(doc), this.userService.watchUserDoc(doc.sender)]),
+        );
+        return combineLatest(messagesWithUserDetailsObservables);
+      }),
+      map((docsWithDetailsInArray) =>
+        docsWithDetailsInArray.map(([message, senderDetails]) => Object.assign(message, senderDetails)),
       ),
     );
   }
