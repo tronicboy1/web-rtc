@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { AuthService } from "@services/auth.service";
-import { ChatService } from "@services/chat.service";
+import { ChatService, Message } from "@services/chat.service";
 import { ContactService } from "@services/contact.service";
 import { UserData } from "@services/user.service";
 import "@web-components/base-modal";
@@ -17,7 +17,7 @@ import { Utils } from "src/app/utils";
 export class ContactsComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private errorTimeout?: ReturnType<typeof setTimeout>;
-  public contacts: UserData[] = [];
+  public contacts: (UserData & { latestMessage: Message })[] = [];
   public loading = false;
   public error = "";
   public uidToDelete = "";

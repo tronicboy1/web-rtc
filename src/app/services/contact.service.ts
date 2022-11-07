@@ -22,6 +22,7 @@ export class ContactService extends UserService {
           ? combineLatest(
               contacts.map((uid) =>
                 this.watchUserDoc(uid).pipe(
+                  mergeMap((contact) => combineLatest([of(contact), this.chatService.watchLatestMessage(uid)])),
                   /** Must manually stop observables after any deletion else you get ghost contacts. */
                   takeUntil(subject.pipe(filter((uidToDelete) => uid === uidToDelete))),
                 ),
@@ -31,11 +32,11 @@ export class ContactService extends UserService {
             of([]),
       ),
       map((contactsWithData) =>
-        contactsWithData.map((contact) => {
+        contactsWithData.map(([contact, latestMessages]) => {
           const theirContactsArray = contact.contacts ?? [];
           const hasMyContact = theirContactsArray.includes(this.authService.user!.uid);
           const unknownStatusContact: UserData = { ...contact, status: "unknown" };
-          return hasMyContact ? contact : unknownStatusContact;
+          return Object.assign(hasMyContact ? contact : unknownStatusContact, { latestMessage: latestMessages[0] });
         }),
       ),
     );
@@ -62,7 +63,7 @@ export class ContactService extends UserService {
         if (alreadyHasContact) throw Error("Contact already exists.");
         return updateDoc(ref, { contacts: [...oldContacts, newUid] });
       }),
-      mergeMap(() => this.chatService.createRoom(theirUid))
+      mergeMap(() => this.chatService.createRoom(theirUid)),
     );
   }
 

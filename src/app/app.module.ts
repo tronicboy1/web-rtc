@@ -12,9 +12,10 @@ import { RtcService } from "@services/rtc.service";
 import { ServiceWorkerModule } from "@angular/service-worker";
 import { environment } from "../environments/environment";
 import { ChatComponent } from './pages/chat/chat.component';
+import { BooleanToNumberPipe } from './pipes/boolean-to-number.pipe';
 
 @NgModule({
-  declarations: [AppComponent, AuthComponent, PageNotFoundComponent, ContactsComponent, CallComponent, ChatComponent],
+  declarations: [AppComponent, AuthComponent, PageNotFoundComponent, ContactsComponent, CallComponent, ChatComponent, BooleanToNumberPipe],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

@@ -94,7 +94,6 @@ li .offline {
 li span.contact-email {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
@@ -102,6 +101,17 @@ li span.contact-email {
   padding-right: 4px;
   word-wrap: break-word;
   cursor: pointer;
+  overflow: hidden;
+}
+li span.contact-email small {
+  text-align: left;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--primary-color);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0px;
 }
 
 li span.contact-buttons {

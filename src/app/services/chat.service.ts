@@ -11,6 +11,7 @@ import {
   doc,
   onSnapshot,
   orderBy,
+  limit,
 } from "firebase/firestore";
 import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { map, mergeMap, Observable, take, of } from "rxjs";
@@ -24,21 +25,20 @@ import { AuthService } from "./auth.service";
  * -- members: uid[]
  * -- messages
  * --- messageId
- * ---- message: string
- * ---- sender: uid
- * ---- sentAt: number
+ * ---- Message
  */
 
-type Room = {
+export type Room = {
   members: string[];
   messages: Record<string, Message>;
 };
-type Message = {
+export type Message = {
   sender: string;
   sentAt: number;
   message: string;
   readBy: string[];
 };
+export type DetailedMessage = Message & { id: string; viewed: boolean };
 
 @Injectable({
   providedIn: "root",
@@ -107,13 +107,13 @@ export class ChatService extends FirebaseFirestore {
     );
   }
 
-  public watchMessages(theirUid: string | string[]) {
-    let uids = Array.from(theirUid);
+  public watchLatestMessage(theirUid: string | string[]) {
+    let uids = theirUid instanceof Array ? [...theirUid] : [theirUid];
     let myUid = "";
     return this.authService.getUid().pipe(
       mergeMap((myUidResult) => {
-        uids.push(myUid);
         myUid = myUidResult;
+        uids.push(myUid);
         return this.getRoom(uids);
       }),
       map((roomId) => {
@@ -124,11 +124,33 @@ export class ChatService extends FirebaseFirestore {
         (roomId) =>
           new Observable<QueryDocumentSnapshot<DocumentData>[]>((observer) => {
             const ref = collection(this.firestore, ChatService.roomsPath, roomId, ChatService.messagesPath);
-            const q = query(ref, orderBy("sentAt", "desc"));
+            const q = query(ref, orderBy("sentAt", "desc"), limit(1));
             return onSnapshot(q, (snapshot) => observer.next(snapshot.docs), observer.error, observer.complete);
           }),
       ),
       map((docs) => docs.map((doc) => doc.data() as Message)),
+    );
+  }
+
+  public watchMessagesByRoomId(roomId: string): Observable<DetailedMessage[]> {
+    let myUid: string;
+    return this.authService.getUid().pipe(
+      mergeMap((uid) => {
+        myUid = uid;
+        return new Observable<QueryDocumentSnapshot<DocumentData>[]>((observer) => {
+          const ref = collection(this.firestore, ChatService.roomsPath, roomId, ChatService.messagesPath);
+          const q = query(ref, orderBy("sentAt", "asc"));
+          return onSnapshot(q, (snapshot) => observer.next(snapshot.docs), observer.error, observer.complete);
+        });
+      }),
+      map((docs) =>
+        docs.map((doc) => {
+          const data = doc.data() as Message;
+          const id = doc.id;
+          const viewed = data.sender === myUid || data.readBy.includes(myUid);
+          return { ...data, id, viewed };
+        }),
+      ),
     );
   }
 
