@@ -1,11 +1,11 @@
 import { Component, OnInit } from "@angular/core";
-import { ContactService } from "@services/contact.service";
-import { Subject, Subscription } from "rxjs";
-import { Utils } from "src/app/utils";
-import "@web-components/base-modal";
 import { Router } from "@angular/router";
-import { CallQueryParameters } from "src/app/app-routing.module";
+import { ContactService } from "@services/contact.service";
 import { UserData } from "@services/user.service";
+import "@web-components/base-modal";
+import { catchError, finalize, Observable, of, Subject, Subscription } from "rxjs";
+import { CallQueryParameters } from "src/app/app-routing.module";
+import { Utils } from "src/app/utils";
 
 @Component({
   selector: "app-contacts",
@@ -20,7 +20,7 @@ export class ContactsComponent implements OnInit {
   public error = "";
   public uidToDelete = "";
   /** Must manually stop observables after any deletion else you get ghost contacts. */
-  private deleteSubject = new Subject<string>()
+  private deleteSubject = new Subject<string>();
 
   constructor(private contactService: ContactService, private router: Router) {}
 
@@ -39,20 +39,40 @@ export class ContactsComponent implements OnInit {
   public handleAddContactSubmit: EventListener = (event) => {
     const { formData, form } = Utils.getFormData(event);
     const email = formData.get("email")!.toString().trim();
-    this.setLoading(this.contactService.addContact(email).then(() => form.reset()));
+    this.setLoading(this.contactService.addContact(email)).subscribe(() => form.reset());
   };
 
-  private setLoading<T>(promise: Promise<T>) {
+  /** Sets loading property and error details to class variables for async operations. */
+  private setLoading<T>(observable: Observable<T>): Observable<T>;
+  private setLoading<T>(promise: Promise<T>): Promise<T>;
+  private setLoading<T>(promiseOrObservable: Promise<T> | Observable<T>) {
     this.loading = true;
     this.error = "";
-    return Promise.resolve(promise)
-      .catch((error) => {
-        if (!(error instanceof Error)) return;
-        this.error = error.message;
-        if (this.errorTimeout) clearTimeout(this.errorTimeout);
-        this.errorTimeout = setTimeout(() => (this.error = ""), 5000);
-      })
-      .finally(() => (this.loading = false));
+    const isPromise = promiseOrObservable instanceof Promise;
+    if (isPromise) {
+      return Promise.resolve(promiseOrObservable)
+        .catch((error) => {
+          if (!(error instanceof Error)) return;
+          this.handleError(error);
+        })
+        .finally(() => (this.loading = false));
+    } else {
+      return promiseOrObservable.pipe(
+        catchError((error) => {
+          if (!(error instanceof Error)) throw error;
+          this.handleError(error);
+          return of()
+        }),
+        finalize(() => {
+          this.loading = false;
+        }),
+      );
+    }
+  }
+  private handleError(error: Error) {
+    this.error = error.message;
+    if (this.errorTimeout) clearTimeout(this.errorTimeout);
+    this.errorTimeout = setTimeout(() => (this.error = ""), 5000);
   }
 
   public handleAudioCallClick = (uid: string) => {

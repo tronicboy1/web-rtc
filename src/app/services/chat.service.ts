@@ -66,7 +66,7 @@ export class ChatService extends FirebaseFirestore {
   }
 
   /** Creates room if does not exist, returns existing room if already created */
-  private createRoom(theirUid: string | string[]) {
+  public createRoom(theirUid: string | string[]) {
     let uids = Array.from(theirUid);
     return this.authService.getUid().pipe(
       take(1),

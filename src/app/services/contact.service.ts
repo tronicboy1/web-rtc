@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { doc, updateDoc } from "firebase/firestore";
-import { combineLatest, map, mergeMap, of, tap, takeUntil, Subject, filter } from "rxjs";
+import { combineLatest, map, mergeMap, of, tap, takeUntil, Subject, filter, take } from "rxjs";
 import { AuthService } from "./auth.service";
 import { UserData, UserService } from "./user.service";
 
@@ -41,20 +41,25 @@ export class ContactService extends UserService {
   }
 
   public addContact(email: string) {
-    const uid = this.authService.user?.uid;
-    if (!uid) throw Error("User must be logged in to add contact.");
-    return this.authService.checkIfUserExists(email).then((exists) => {
-      if (!exists) throw Error("Cannot add non-existant email.");
-      const ref = this.getDocRef();
-      return Promise.all([this.getUserData(uid), this.userService.getTheirUid(email)]).then(([userData, newUid]) => {
+    return of(this.authService.checkIfUserExists(email)).pipe(
+      mergeMap((exists) => {
+        if (!exists) throw Error("Cannot add non-existant email.");
+        return this.authService.getUid();
+      }),
+      take(1),
+      mergeMap((uid) => {
+        return Promise.all([this.getUserData(uid), this.userService.getTheirUid(email)]);
+      }),
+      mergeMap(([userData, newUid]) => {
         if (!userData) throw Error("uid was invalid");
         if (userData.email === email) throw Error("You cannot add yourself.");
+        const ref = this.getDocRef();
         const oldContacts = userData.contacts ?? [];
         const alreadyHasContact = Boolean(oldContacts.find((contact) => contact === newUid));
         if (alreadyHasContact) throw Error("Contact already exists.");
         return updateDoc(ref, { contacts: [...oldContacts, newUid] });
-      });
-    });
+      }),
+    );
   }
 
   public deleteContact(uidToDelete: string) {
