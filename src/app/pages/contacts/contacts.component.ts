@@ -12,7 +12,7 @@ import { Utils } from "src/app/utils";
 @Component({
   selector: "app-contacts",
   templateUrl: "./contacts.component.html",
-  styleUrls: ["./contacts.component.css"],
+  styleUrls: ["./contacts.component.css", "../../styles/single-input-form.css"],
 })
 export class ContactsComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];

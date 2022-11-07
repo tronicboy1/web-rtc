@@ -1,12 +1,13 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { AuthService } from "@services/auth.service";
 import { ChatService, DetailedMessage } from "@services/chat.service";
-import { map, mergeMap, Subscription, take } from "rxjs";
+import { map, mergeMap, Subscription, take, finalize, forkJoin } from "rxjs";
 
 @Component({
   selector: "app-chat",
   templateUrl: "./chat.component.html",
-  styleUrls: ["./chat.component.css"],
+  styleUrls: ["./chat.component.css", "../../styles/single-input-form.css"],
 })
 export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
   private subscriptions: Subscription[] = [];
@@ -16,7 +17,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
   private mutationObserver: MutationObserver;
   private intersectionObserver: IntersectionObserver;
 
-  constructor(private chatService: ChatService, private route: ActivatedRoute) {
+  constructor(private chatService: ChatService, private route: ActivatedRoute, private authService: AuthService) {
     this.mutationObserver = new MutationObserver(this.mutationObserverCallback);
     this.intersectionObserver = new IntersectionObserver(this.intersectionObserverCallback, {
       root: document,
@@ -26,7 +27,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit(): void {
-    console.log("ChatComponent");
     this.getRoomId()
       .pipe(mergeMap((roomId) => this.chatService.watchMessagesByRoomId(roomId)))
       .subscribe((messages) => {
@@ -35,7 +35,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    console.log("view init", this.ul);
     this.mutationObserver.observe(this.ul.nativeElement, { childList: true });
   }
 
@@ -53,6 +52,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(
         take(1),
         mergeMap((roomId) => this.chatService.sendMessage(roomId, message)),
+        finalize(() => form.reset()),
       )
       .subscribe();
   };
@@ -87,6 +87,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
       if (!(target instanceof HTMLLIElement)) throw TypeError("Can only watch LI.");
       const messageId = target.dataset["messageId"]!;
       const viewed = Boolean(Number(target.dataset["viewed"]));
+      if (viewed) return;
+      forkJoin([this.authService.getUid().pipe(take(1)), this.getRoomId().pipe(take(1))]).subscribe(([uid, roomId]) =>
+        this.chatService.addReaderToMessage(roomId, messageId, uid),
+      );
       console.log("intersecting element: ", messageId, viewed);
     });
 }

@@ -12,6 +12,8 @@ import {
   onSnapshot,
   orderBy,
   limit,
+  arrayUnion,
+  updateDoc
 } from "firebase/firestore";
 import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { map, mergeMap, Observable, take, of } from "rxjs";
@@ -169,5 +171,10 @@ export class ChatService extends FirebaseFirestore {
         return addDoc(messagesRef, newMessage);
       }),
     );
+  }
+
+  public addReaderToMessage(roomId: string, messageId: string, uid: string) {
+    const ref = doc(this.firestore, ChatService.roomsPath, roomId, ChatService.messagesPath, messageId);
+    return updateDoc(ref, { readBy: arrayUnion(uid) })
   }
 }
