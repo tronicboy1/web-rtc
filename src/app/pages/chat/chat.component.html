@@ -1,8 +1,9 @@
 <ul class="card" #messageList>
   <li *ngFor="let message of this.messages" [attr.data-message-id]="message.id"
-    [attr.data-viewed]="message.viewed | booleanToNumber">
+    [attr.data-viewed]="message.viewed | booleanToNumber" [class.my-message]="this.myUid === message.sender">
     <h5>{{ message.email }}</h5>
     <p>{{ message.message }}</p>
+    <small>{{ message.sentAt | date: "short" }}</small>
   </li>
 </ul>
 <div class="card" id="send-form">

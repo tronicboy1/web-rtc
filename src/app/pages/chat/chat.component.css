@@ -42,10 +42,18 @@ li h5 {
   text-align: left;
   margin-top: 0;
   margin-bottom: 0.25rem;
+  font-size: 1rem;
 }
 
 li p {
-  font-size: 1rem;
+  font-size: 1.5rem;
+  text-align: left;
+}
+
+li small {
+  font-size: 0.75rem;
+  text-align: right;
+  width: 100%;
 }
 
 .my-message {

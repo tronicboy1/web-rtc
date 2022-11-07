@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } fr
 import { ActivatedRoute } from "@angular/router";
 import { AuthService } from "@services/auth.service";
 import { ChatService, DetailedMessageWithUserData } from "@services/chat.service";
-import { map, mergeMap, Subscription, take, finalize, forkJoin } from "rxjs";
+import { map, mergeMap, Subscription, take, forkJoin } from "rxjs";
 
 @Component({
   selector: "app-chat",
@@ -12,6 +12,7 @@ import { map, mergeMap, Subscription, take, finalize, forkJoin } from "rxjs";
 export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
   private subscriptions: Subscription[] = [];
   public messages: DetailedMessageWithUserData[] = [];
+  public myUid = "";
   @ViewChild("messageList")
   private ul!: ElementRef<HTMLUListElement>;
   private mutationObserver: MutationObserver;
@@ -27,11 +28,14 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.getRoomId()
-      .pipe(mergeMap((roomId) => this.chatService.watchMessagesByRoomId(roomId)))
-      .subscribe((messages) => {
-        this.messages = messages;
-      });
+    this.subscriptions.push(
+      this.getRoomId()
+        .pipe(mergeMap((roomId) => this.chatService.watchMessagesByRoomId(roomId)))
+        .subscribe((messages) => {
+          this.messages = messages;
+        }),
+      this.authService.getUid().subscribe((uid) => (this.myUid = uid)),
+    );
   }
 
   ngAfterViewInit(): void {
@@ -52,9 +56,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(
         take(1),
         mergeMap((roomId) => this.chatService.sendMessage(roomId, message)),
-        finalize(() => form.reset()),
       )
       .subscribe();
+    form.reset();
   };
 
   private getRoomId() {
