@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { RtcService } from "@services/rtc.service";
 import { Subscription } from "rxjs";
@@ -8,7 +8,7 @@ import { Subscription } from "rxjs";
   templateUrl: "./call.component.html",
   styleUrls: ["./call.component.css"],
 })
-export class CallComponent implements OnInit {
+export class CallComponent implements OnInit, AfterViewInit, OnDestroy {
   public isVideo = false;
   private subscriptions: Subscription[] = [];
   @ViewChild("myVideo")

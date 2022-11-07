@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { AuthService } from "@services/auth.service";
 import { ChatService } from "@services/chat.service";
@@ -14,7 +14,7 @@ import { Utils } from "src/app/utils";
   templateUrl: "./contacts.component.html",
   styleUrls: ["./contacts.component.css"],
 })
-export class ContactsComponent implements OnInit {
+export class ContactsComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private errorTimeout?: ReturnType<typeof setTimeout>;
   public contacts: UserData[] = [];

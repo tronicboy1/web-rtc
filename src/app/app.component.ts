@@ -1,4 +1,4 @@
-import { Component, HostListener } from "@angular/core";
+import { Component, HostListener, OnDestroy, OnInit } from "@angular/core";
 import { ChildrenOutletContexts, Router } from "@angular/router";
 import { AuthService } from "@services/auth.service";
 import { CallService } from "@services/call.service";
@@ -15,7 +15,7 @@ import { slideInAnimation } from "./animations";
   styleUrls: ["./app.component.css"],
   animations: [slideInAnimation],
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   title = "angular";
   public isAuth = false;
   private subscritions: Subscription[] = [];
