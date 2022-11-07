@@ -52,7 +52,22 @@ export class ChatService extends FirebaseFirestore {
     super();
   }
 
-  private getRoom(uids: string[]) {
+  public getRoomById(roomId: string) {
+    return new Observable<Room | null>((observer) => {
+      const ref = doc(this.firestore, ChatService.roomsPath, roomId);
+      getDoc(ref)
+        .then((result) => {
+          const exists = result.exists();
+          if (!exists) return observer.next(null);
+          const data = result.data() as Room;
+          observer.next(data);
+        })
+        .catch(observer.error)
+        .finally(() => observer.complete());
+    });
+  }
+
+  public getRoom(uids: string[]) {
     return new Observable<null | string>((observer) => {
       const q = query(this.roomsRef, where("members", "array-contains-any", uids));
       getDocs(q)

@@ -12,7 +12,7 @@
   <ul>
     <li *ngFor="let contact of this.contacts">
       <span class="activity" [ngClass]="contact.status">{{ contact.status === "unknown" ? "?" : "" }}</span>
-      <span class="contact-email">{{ contact.email }}</span>
+      <span class="contact-email" (click)="this.handleContactClick(contact.uid)">{{ contact.email }}</span>
       <span class="contact-buttons">
         <button [disabled]="contact.status === 'unknown'" type="button" aria-label="audio call"
           (click)="this.handleAudioCallClick(contact.uid)">

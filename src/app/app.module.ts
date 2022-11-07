@@ -11,9 +11,10 @@ import { CallComponent } from "./pages/call/call.component";
 import { RtcService } from "@services/rtc.service";
 import { ServiceWorkerModule } from "@angular/service-worker";
 import { environment } from "../environments/environment";
+import { ChatComponent } from './pages/chat/chat.component';
 
 @NgModule({
-  declarations: [AppComponent, AuthComponent, PageNotFoundComponent, ContactsComponent, CallComponent],
+  declarations: [AppComponent, AuthComponent, PageNotFoundComponent, ContactsComponent, CallComponent, ChatComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

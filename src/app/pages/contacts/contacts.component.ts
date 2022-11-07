@@ -1,9 +1,11 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
+import { AuthService } from "@services/auth.service";
+import { ChatService } from "@services/chat.service";
 import { ContactService } from "@services/contact.service";
 import { UserData } from "@services/user.service";
 import "@web-components/base-modal";
-import { catchError, finalize, Observable, of, Subject, Subscription } from "rxjs";
+import { catchError, finalize, mergeMap, Observable, of, Subject, Subscription, take } from "rxjs";
 import { CallQueryParameters } from "src/app/app-routing.module";
 import { Utils } from "src/app/utils";
 
@@ -22,7 +24,12 @@ export class ContactsComponent implements OnInit {
   /** Must manually stop observables after any deletion else you get ghost contacts. */
   private deleteSubject = new Subject<string>();
 
-  constructor(private contactService: ContactService, private router: Router) {}
+  constructor(
+    private contactService: ContactService,
+    private router: Router,
+    private authService: AuthService,
+    private chatService: ChatService,
+  ) {}
 
   ngOnInit(): void {
     this.subscriptions.push(
@@ -61,7 +68,7 @@ export class ContactsComponent implements OnInit {
         catchError((error) => {
           if (!(error instanceof Error)) throw error;
           this.handleError(error);
-          return of()
+          return of();
         }),
         finalize(() => {
           this.loading = false;
@@ -75,6 +82,18 @@ export class ContactsComponent implements OnInit {
     this.errorTimeout = setTimeout(() => (this.error = ""), 5000);
   }
 
+  public handleContactClick = (theirUid: string) => {
+    this.authService
+      .getUid()
+      .pipe(
+        mergeMap((myUid) => this.chatService.getRoom([myUid, theirUid])),
+        take(1),
+      )
+      .subscribe((roomId) => {
+        if (!roomId) throw Error("Room with both users was not found.");
+        this.router.navigate(["/chat", roomId]);
+      });
+  };
   public handleAudioCallClick = (uid: string) => {
     const queryParams: CallQueryParameters = { "their-uid": uid, "is-video": 0, polite: 0 };
     this.router.navigate(["/call"], { queryParams });
