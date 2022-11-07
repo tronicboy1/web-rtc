@@ -12,7 +12,7 @@ import {
   onSnapshot,
   orderBy,
 } from "firebase/firestore";
-import type { DocumentReference, DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
+import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { map, mergeMap, Observable, take, of } from "rxjs";
 import { AuthService } from "./auth.service";
 
@@ -54,11 +54,21 @@ export class ChatService extends FirebaseFirestore {
 
   private getRoom(uids: string[]) {
     return new Observable<null | string>((observer) => {
-      const q = query(this.roomsRef, where("members", "array-contains", uids));
+      const q = query(this.roomsRef, where("members", "array-contains-any", uids));
       getDocs(q)
         .then((result) => {
           if (result.empty) return observer.next(null);
-          observer.next(result.docs[0].id);
+          /**
+           * Must manually search for doc with all uids in members array.
+           * https://firebase.google.com/docs/firestore/query-data/queries#array_membership
+           */
+          const { docs } = result;
+          const room = docs.find((doc) => {
+            const { members } = doc.data() as Room;
+            return members.every((roomUid) => uids.includes(roomUid));
+          });
+          if (!room) return observer.next(null);
+          observer.next(room.id);
         })
         .catch(observer.error)
         .finally(() => observer.complete());
@@ -67,7 +77,7 @@ export class ChatService extends FirebaseFirestore {
 
   /** Creates room if does not exist, returns existing room if already created */
   public createRoom(theirUid: string | string[]) {
-    let uids = Array.from(theirUid);
+    let uids = theirUid instanceof Array ? [...theirUid] : [theirUid];
     return this.authService.getUid().pipe(
       take(1),
       mergeMap((myUid) => {
@@ -119,7 +129,7 @@ export class ChatService extends FirebaseFirestore {
       mergeMap((uid) => {
         const messagesRef = collection(roomRef, ChatService.messagesPath);
         const newMessage: Message = { message: message.trim(), sender: uid, sentAt: Date.now(), readBy: [] };
-        return addDoc(messagesRef, newMessage)
+        return addDoc(messagesRef, newMessage);
       }),
     );
   }

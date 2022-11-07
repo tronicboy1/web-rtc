@@ -2,13 +2,14 @@ import { Injectable } from "@angular/core";
 import { doc, updateDoc } from "firebase/firestore";
 import { combineLatest, map, mergeMap, of, tap, takeUntil, Subject, filter, take } from "rxjs";
 import { AuthService } from "./auth.service";
+import { ChatService } from "./chat.service";
 import { UserData, UserService } from "./user.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class ContactService extends UserService {
-  constructor(private authService: AuthService, private userService: UserService) {
+  constructor(private authService: AuthService, private userService: UserService, private chatService: ChatService) {
     super();
   }
 
@@ -41,6 +42,7 @@ export class ContactService extends UserService {
   }
 
   public addContact(email: string) {
+    let theirUid: string;
     return of(this.authService.checkIfUserExists(email)).pipe(
       mergeMap((exists) => {
         if (!exists) throw Error("Cannot add non-existant email.");
@@ -53,12 +55,14 @@ export class ContactService extends UserService {
       mergeMap(([userData, newUid]) => {
         if (!userData) throw Error("uid was invalid");
         if (userData.email === email) throw Error("You cannot add yourself.");
+        theirUid = newUid;
         const ref = this.getDocRef();
         const oldContacts = userData.contacts ?? [];
         const alreadyHasContact = Boolean(oldContacts.find((contact) => contact === newUid));
         if (alreadyHasContact) throw Error("Contact already exists.");
         return updateDoc(ref, { contacts: [...oldContacts, newUid] });
       }),
+      mergeMap(() => this.chatService.createRoom(theirUid))
     );
   }
 
