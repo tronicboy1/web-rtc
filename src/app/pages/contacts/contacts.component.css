@@ -1,31 +1,6 @@
-/* form input {
-  padding-left: 0.5rem;
-  border: 1px solid var(--secondary-color);
-  border-bottom-left-radius: var(--radius);
-  border-top-left-radius: var(--radius);
-  font-size: large;
-  flex: 1;
-  outline: none;
-  margin: 0;
+:host {
+  --active-user: rgb(99, 255, 47);
 }
-
-form button {
-  color: white;
-  border-radius: 0;
-  border-bottom-right-radius: var(--radius);
-  border-top-right-radius: var(--radius);
-  margin: 0;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  flex: 0 1 20%;
-}
-
-form {
-  display: flex;
-  flex-direction: row;
-  height: 50px;
-} */
 
 button {
   border-radius: var(--radius);
@@ -75,12 +50,12 @@ li .activity {
   border: 1px solid transparent;
   background-color: transparent;
   border-radius: 50%;
-  padding: min(12px, 3vw)
+  padding: min(12px, 3vw);
 }
 
 li .online {
-  background-color: rgb(99, 255, 47);
-  border-color: rgb(99, 255, 47);
+  background-color: var(--active-user);
+  border-color: var(--active-user);
 }
 li .away {
   background-color: rgb(255, 247, 0);
@@ -89,6 +64,25 @@ li .away {
 li .offline {
   background-color: var(--danger-color);
   border-color: var(--danger-color);
+}
+li .new-message {
+  background-color: var(--highlight-color);
+  border: 3px solid var(--highlight-color);
+  animation-name: color;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes color {
+  0% {
+    background-color: var(--active-user);
+  }
+  50% {
+    background-color: var(--highlight-color);
+  }
+  100% {
+    background-color: var(--active-user);
+  }
 }
 
 li span.contact-email {

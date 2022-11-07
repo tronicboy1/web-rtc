@@ -17,7 +17,7 @@ import { Utils } from "src/app/utils";
 export class ContactsComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private errorTimeout?: ReturnType<typeof setTimeout>;
-  public contacts: (UserData & { latestMessage: Message })[] = [];
+  public contacts: (UserData & { latestMessage?: Message })[] = [];
   public loading = false;
   public error = "";
   public uidToDelete = "";

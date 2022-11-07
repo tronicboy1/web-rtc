@@ -13,7 +13,7 @@ import {
   orderBy,
   limit,
   arrayUnion,
-  updateDoc
+  updateDoc,
 } from "firebase/firestore";
 import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { map, mergeMap, Observable, take, of } from "rxjs";
@@ -109,7 +109,7 @@ export class ChatService extends FirebaseFirestore {
     );
   }
 
-  public watchLatestMessage(theirUid: string | string[]) {
+  public watchLatestMessage(theirUid: string | string[]): Observable<DetailedMessage[]> {
     let uids = theirUid instanceof Array ? [...theirUid] : [theirUid];
     let myUid = "";
     return this.authService.getUid().pipe(
@@ -130,7 +130,14 @@ export class ChatService extends FirebaseFirestore {
             return onSnapshot(q, (snapshot) => observer.next(snapshot.docs), observer.error, observer.complete);
           }),
       ),
-      map((docs) => docs.map((doc) => doc.data() as Message)),
+      map((docs) =>
+        docs.map((doc) => {
+          const data = doc.data() as Message;
+          const id = doc.id;
+          const viewed = data.sender === myUid || data.readBy.includes(myUid);
+          return { ...data, id, viewed };
+        }),
+      ),
     );
   }
 
@@ -175,6 +182,6 @@ export class ChatService extends FirebaseFirestore {
 
   public addReaderToMessage(roomId: string, messageId: string, uid: string) {
     const ref = doc(this.firestore, ChatService.roomsPath, roomId, ChatService.messagesPath, messageId);
-    return updateDoc(ref, { readBy: arrayUnion(uid) })
+    return updateDoc(ref, { readBy: arrayUnion(uid) });
   }
 }

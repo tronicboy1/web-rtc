@@ -3,7 +3,7 @@ import { FirebaseFirestore } from "@custom-firebase/inheritables/firestore";
 import { map, Observable } from "rxjs";
 import { onSnapshot, doc, updateDoc, setDoc, collection, query, where, getDocs, getDoc } from "firebase/firestore";
 
-export type UserStatus = "online" | "away" | "offline" | "unknown" | undefined;
+export type UserStatus = "online" | "away" | "offline" | "unknown" | "new-message" | undefined;
 export type UidRecord = { email: string; uid: string };
 export type UserData = { uid: string; email: string; status?: UserStatus; contacts?: string[] };
 

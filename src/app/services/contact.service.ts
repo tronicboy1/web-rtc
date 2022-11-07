@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { doc, updateDoc } from "firebase/firestore";
 import { combineLatest, map, mergeMap, of, tap, takeUntil, Subject, filter, take } from "rxjs";
 import { AuthService } from "./auth.service";
-import { ChatService } from "./chat.service";
+import { ChatService, DetailedMessage } from "./chat.service";
 import { UserData, UserService } from "./user.service";
 
 @Injectable({
@@ -21,8 +21,7 @@ export class ContactService extends UserService {
         contacts.length
           ? combineLatest(
               contacts.map((uid) =>
-                this.watchUserDoc(uid).pipe(
-                  mergeMap((contact) => combineLatest([of(contact), this.chatService.watchLatestMessage(uid)])),
+                combineLatest([this.watchUserDoc(uid), this.chatService.watchLatestMessage(uid)]).pipe(
                   /** Must manually stop observables after any deletion else you get ghost contacts. */
                   takeUntil(subject.pipe(filter((uidToDelete) => uid === uidToDelete))),
                 ),
@@ -35,8 +34,20 @@ export class ContactService extends UserService {
         contactsWithData.map(([contact, latestMessages]) => {
           const theirContactsArray = contact.contacts ?? [];
           const hasMyContact = theirContactsArray.includes(this.authService.user!.uid);
-          const unknownStatusContact: UserData = { ...contact, status: "unknown" };
-          return Object.assign(hasMyContact ? contact : unknownStatusContact, { latestMessage: latestMessages[0] });
+          if (!hasMyContact) {
+            const unknownStatusContact: UserData = { ...contact, status: "unknown" };
+            return unknownStatusContact;
+          }
+          const hasNewMessage = !latestMessages[0].viewed;
+          if (hasNewMessage) {
+            const newMessageStatusContact: UserData = { ...contact, status: "new-message" };
+            return Object.assign(newMessageStatusContact, {
+              latestMessage: latestMessages[0],
+            });
+          }
+          return Object.assign(contact, {
+            latestMessage: latestMessages[0],
+          });
         }),
       ),
     );
