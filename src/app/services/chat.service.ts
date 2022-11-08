@@ -95,7 +95,7 @@ export class ChatService extends FirebaseFirestore {
   }
 
   /** Creates room if does not exist, returns existing room if already created */
-  public createRoom(theirUid: string | string[]) {
+  public createRoom(theirUid: string | string[]): Observable<string> {
     let uids = theirUid instanceof Array ? [...theirUid] : [theirUid];
     return this.authService.getUid().pipe(
       take(1),
@@ -106,7 +106,7 @@ export class ChatService extends FirebaseFirestore {
       mergeMap((room) => {
         if (room) return Promise.resolve(room);
         const newRoomData: Room = { members: uids, messages: {} };
-        return addDoc(this.roomsRef, newRoomData).then((result) => doc(this.roomsRef, result.id));
+        return addDoc(this.roomsRef, newRoomData).then((result) => result.id);
       }),
     );
   }
@@ -117,8 +117,7 @@ export class ChatService extends FirebaseFirestore {
     return this.authService.getUid().pipe(
       mergeMap((myUidResult) => {
         myUid = myUidResult;
-        uids.push(myUid);
-        return this.getRoom(uids);
+        return this.createRoom(uids);
       }),
       map((roomId) => {
         if (!roomId) throw Error("Room must be created before watching messages.");

@@ -85,19 +85,17 @@ li .new-message {
   }
 }
 
-li span.contact-email {
+li .contact-email {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 100%;
-  height: 100%;
   text-align: left;
   padding-right: 4px;
   word-wrap: break-word;
   cursor: pointer;
   overflow: hidden;
 }
-li span.contact-email small {
+li .contact-email small {
   text-align: left;
   padding: 0.25rem 0.5rem;
   background-color: var(--primary-color);
@@ -108,19 +106,19 @@ li span.contact-email small {
   min-width: 0px;
 }
 
-li span.contact-buttons {
+li .contact-buttons {
   display: flex;
   max-width: 100%;
   height: auto;
   flex-wrap: wrap;
 }
 
-li span.contact-buttons button {
+li .contact-buttons button {
   flex: 1 1 90%;
   margin: 4px 4px;
 }
 
-li span.contact-buttons button:disabled {
+li .contact-buttons button:disabled {
   background-color: grey;
   border-color: grey;
 }

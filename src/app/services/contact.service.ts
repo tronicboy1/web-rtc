@@ -31,22 +31,22 @@ export class ContactService extends UserService {
             of([]),
       ),
       map((contactsWithData) =>
-        contactsWithData.map(([contact, latestMessages]) => {
+        contactsWithData.map(([contact, [latestMessage]]) => {
           const theirContactsArray = contact.contacts ?? [];
           const hasMyContact = theirContactsArray.includes(this.authService.user!.uid);
           if (!hasMyContact) {
             const unknownStatusContact: UserData = { ...contact, status: "unknown" };
             return unknownStatusContact;
           }
-          const hasNewMessage = !latestMessages[0].viewed;
+          const hasNewMessage = latestMessage ? !latestMessage.viewed : false;
           if (hasNewMessage) {
             const newMessageStatusContact: UserData = { ...contact, status: "new-message" };
             return Object.assign(newMessageStatusContact, {
-              latestMessage: latestMessages[0],
+              latestMessage: latestMessage,
             });
           }
           return Object.assign(contact, {
-            latestMessage: latestMessages[0],
+            latestMessage: latestMessage,
           });
         }),
       ),
