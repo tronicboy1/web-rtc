@@ -28,6 +28,7 @@ export class RtcService extends FirebaseDatabase {
   public dataChannel: RTCDataChannel | null = null;
   private theirUid?: string;
   private isVideo = false;
+  private controller = new AbortController();
 
   static path = "rtc";
 
@@ -64,6 +65,7 @@ export class RtcService extends FirebaseDatabase {
   ];
 
   public close() {
+    this.controller.abort();
     if (this.theirUid) {
       this.callService.cleanUp(this.theirUid).subscribe();
     }
@@ -152,8 +154,10 @@ export class RtcService extends FirebaseDatabase {
     this.isVideo = isVideo;
     await this.addTracks();
     this.dataChannel = this.peerConnection.createDataChannel("messages", { negotiated: false });
-    this.dataChannel.addEventListener("error", (event) => console.error("Data Channel Error", event));
-    this.dataChannel.addEventListener("open", this.handleDataChannelOpening);
+    this.dataChannel.addEventListener("error", (event) => console.error("Data Channel Error", event), {
+      signal: this.controller.signal,
+    });
+    this.dataChannel.addEventListener("open", this.handleDataChannelOpening, { signal: this.controller.signal });
     await this.callService.send(theirUid, isVideo);
     this.callService
       .watchTheirReadyState(theirUid)
@@ -176,12 +180,16 @@ export class RtcService extends FirebaseDatabase {
     return this.getVideoStream().then((stream) => {
       const tracks = stream.getTracks();
       tracks.forEach((track) => this.peerConnection.addTrack(track, stream));
-      this.peerConnection.addEventListener("track", this.handleTrackEvent);
-      this.peerConnection.addEventListener("icecandidate", this.handleIceCandidateEvent);
-      this.peerConnection.addEventListener("iceconnectionstatechange", () =>
-        console.log("Candidate state ", this.peerConnection.iceConnectionState),
+      this.peerConnection.addEventListener("track", this.handleTrackEvent, { signal: this.controller.signal });
+      this.peerConnection.addEventListener("icecandidate", this.handleIceCandidateEvent, {
+        signal: this.controller.signal,
+      });
+      this.peerConnection.addEventListener(
+        "iceconnectionstatechange",
+        () => console.log("Candidate state ", this.peerConnection.iceConnectionState),
+        { signal: this.controller.signal },
       );
-      this.peerConnection.addEventListener("datachannel", this.handleDataChannel);
+      this.peerConnection.addEventListener("datachannel", this.handleDataChannel, { signal: this.controller.signal });
     });
   }
 
@@ -196,9 +204,11 @@ export class RtcService extends FirebaseDatabase {
     this.myMediaStream = new MediaStream();
     this.theirMediaStream = new MediaStream();
     this.peerConnection = new RTCPeerConnection({ iceServers: this.iceServers });
-    this.peerConnection.addEventListener("track", this.handleTrackEvent);
-    this.peerConnection.addEventListener("icecandidate", this.handleIceCandidateEvent);
-    this.peerConnection.addEventListener("datachannel", this.handleDataChannel);
+    this.peerConnection.addEventListener("track", this.handleTrackEvent, { signal: this.controller.signal });
+    this.peerConnection.addEventListener("icecandidate", this.handleIceCandidateEvent, {
+      signal: this.controller.signal,
+    });
+    this.peerConnection.addEventListener("datachannel", this.handleDataChannel, { signal: this.controller.signal });
     this.callService.setMyReadyState(true).subscribe();
   }
 
@@ -219,7 +229,9 @@ export class RtcService extends FirebaseDatabase {
 
   private handleDataChannel = (event: RTCDataChannelEvent) => {
     this.dataChannel = event.channel;
-    this.dataChannel.addEventListener("error", (event) => console.error("Data Channel Error", event));
-    this.dataChannel.addEventListener("open", this.handleDataChannelOpening);
+    this.dataChannel.addEventListener("error", (event) => console.error("Data Channel Error", event), {
+      signal: this.controller.signal,
+    });
+    this.dataChannel.addEventListener("open", this.handleDataChannelOpening, { signal: this.controller.signal });
   };
 }
