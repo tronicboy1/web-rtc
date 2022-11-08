@@ -68,21 +68,6 @@ li .offline {
 li .new-message {
   background-color: var(--highlight-color);
   border: 3px solid var(--highlight-color);
-  animation-name: color;
-  animation-duration: 4s;
-  animation-iteration-count: infinite;
-}
-
-@keyframes color {
-  0% {
-    background-color: var(--active-user);
-  }
-  50% {
-    background-color: var(--highlight-color);
-  }
-  100% {
-    background-color: var(--active-user);
-  }
 }
 
 li .contact-email {
@@ -94,6 +79,9 @@ li .contact-email {
   word-wrap: break-word;
   cursor: pointer;
   overflow: hidden;
+}
+.contact-email h5 {
+  font-weight: 400;
 }
 li .contact-email small {
   text-align: left;

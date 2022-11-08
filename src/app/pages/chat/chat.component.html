@@ -1,7 +1,9 @@
 <ul class="card" #messageList>
-  <li *ngFor="let message of this.messages" [attr.data-message-id]="message.id"
-    [attr.data-viewed]="message.viewed | booleanToNumber" [class.my-message]="this.myUid === message.sender">
-    <h5>{{ message.email }}</h5>
+  <li *ngFor="let message of this.messages; let i = index;" [attr.data-message-id]="message.id"
+    [attr.data-viewed]="message.viewed | booleanToNumber" [class.my-message]="this.myUid === message.sender"
+    [class.grouped]="this.messages[i-1] ? this.messages[i-1].sender === message.sender : false">
+    <h5 *ngIf="i === 0 || this.messages[i-1].sender !== message.sender">{{ message.sender === this.myUid ? "Me" :
+      message.email }}</h5>
     <p>{{ message.message }}</p>
     <small>{{ message.sentAt | date: "short" }}</small>
   </li>
@@ -9,6 +11,8 @@
 <div class="card" id="send-form">
   <form (submit)="this.handleSendMessage($event)">
     <input type="text" name="message" id="message" required>
-    <button type="submit">Send</button>
+    <button type="submit"><svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0,0,48,48">
+        <path d="M6 40V8l38 16Zm3-4.65L36.2 24 9 12.5v8.4L21.1 24 9 27Zm0 0V12.5 27Z" />
+      </svg></button>
   </form>
 </div>

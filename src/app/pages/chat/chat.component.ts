@@ -98,6 +98,5 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
       forkJoin([this.authService.getUid().pipe(take(1)), this.getRoomId().pipe(take(1))]).subscribe(([uid, roomId]) =>
         this.chatService.addReaderToMessage(roomId, messageId, uid),
       );
-      console.log("intersecting element: ", messageId, viewed);
     });
 }
