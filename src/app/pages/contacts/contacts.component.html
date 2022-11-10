@@ -14,7 +14,7 @@
       <span class="activity" [ngClass]="contact.status">{{ contact.status === "unknown" ? "?" : "" }}</span>
       <div class="contact-email" (click)="this.handleContactClick(contact.uid)">
         <h5>{{ contact.email }}</h5>
-        <small>{{ contact.latestMessage?.message }}</small>
+        <small *ngIf="contact.latestMessage">{{ contact.latestMessage.message }}</small>
       </div>
       <div class="contact-buttons">
         <button [disabled]="contact.status === 'unknown'" type="button" aria-label="audio call"

@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { doc, updateDoc } from "firebase/firestore";
 import { combineLatest, map, mergeMap, of, tap, takeUntil, Subject, filter, take } from "rxjs";
 import { AuthService } from "./auth.service";
-import { ChatService, DetailedMessage } from "./chat.service";
+import { ChatService } from "./chat.service";
 import { UserData, UserService } from "./user.service";
 
 @Injectable({

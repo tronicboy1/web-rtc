@@ -5,7 +5,6 @@ import {
   where,
   query,
   getDocs,
-  setDoc,
   addDoc,
   getDoc,
   doc,
@@ -163,7 +162,7 @@ export class ChatService extends FirebaseFirestore {
       ),
       mergeMap((docs) => {
         const messagesWithUserDetailsObservables = docs.map((doc) =>
-          combineLatest([of(doc), this.userService.watchUserDoc(doc.sender)]),
+          combineLatest([of(doc), this.userService.watchUserDoc(doc.sender).pipe(take(1))]),
         );
         return combineLatest(messagesWithUserDetailsObservables);
       }),
