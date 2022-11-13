@@ -1,1 +1,12 @@
-<p>account-details-form works!</p>
+<form *ngIf="this.user; else loading" (submit)="this.handleSubmit($event)">
+  <label for="display-name">Display Name</label>
+  <input type="text" name="display-name" id="display-name" [value]="this.user.displayName">
+  <label for="Email">Email</label>
+  <input type="email" name="email" id="email" [value]="this.user.email" disabled>
+  <label for="tel">Phone Number</label>
+  <input type="tel" name="tel" id="tel" [value]="this.user.phoneNumber" disabled>
+  <button type="submit">Update</button>
+</form>
+<ng-template #loading>
+  <loading-spinner></loading-spinner>
+</ng-template>

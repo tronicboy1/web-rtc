@@ -9,6 +9,7 @@ import {
   updatePassword,
   fetchSignInMethodsForEmail,
   updateEmail,
+  updateProfile,
 } from "firebase/auth";
 import { filter, map, Observable } from "rxjs";
 import type { OperatorFunction } from "rxjs";
@@ -56,6 +57,12 @@ export class AuthService extends FirebaseAuth {
     const { currentUser } = this.auth;
     if (!currentUser) throw Error("Cannot change email if not logged in.");
     return updateEmail(currentUser, newEmail);
+  }
+
+  public updateAccount(accountData: Parameters<typeof updateProfile>[1]) {
+    const { currentUser } = this.auth;
+    if (!currentUser) throw Error("Cannot change account if not logged in.");
+    return updateProfile(currentUser, accountData);
   }
 
   public changePassword(email: string, password: string, newPassword: string) {
