@@ -9,11 +9,11 @@
   <li (click)="this.toggleAccountDetailsModal()">Account Info</li>
 </ul>
 
-<base-modal [show]="this.showChangeEmailModal" modal-title="Change Email"
+<base-modal *ngIf="this.showChangeEmailModal" show modal-title="Change Email"
   (modal-closed)="this.toggleChangeEmailModal(false)">
   <app-change-email-form></app-change-email-form>
 </base-modal>
-<base-modal [show]="this.showAccountDetailsModal" modal-title="Account Details"
+<base-modal *ngIf="this.showAccountDetailsModal" show modal-title="Account Details"
   (modal-closed)="this.toggleAccountDetailsModal(false)">
   <app-account-details-form></app-account-details-form>
 </base-modal>
