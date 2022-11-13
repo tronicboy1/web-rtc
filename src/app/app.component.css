@@ -48,7 +48,6 @@ nav ul li.clickable {
   background-color: var(--secondary-color);
   border: 1px solid var(--secondary-color);
   border-radius: var(--radius);
-  cursor: pointer;
 }
 
 #account-circle-container {
