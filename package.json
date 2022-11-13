@@ -10,7 +10,8 @@
     "test": "ng test",
     "format": "prettier ./src --write",
     "mkcert": "mkcert -key-file key.pem -cert-file cert.pem example.com *.example.com localhost",
-    "emulate": "firebase emulators:start --import=./dump"
+    "emulate": "firebase emulators:start --import=./dump",
+    "dump": "firebase emulators:export ./dump"
   },
   "private": true,
   "dependencies": {
