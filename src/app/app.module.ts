@@ -13,9 +13,10 @@ import { ServiceWorkerModule } from "@angular/service-worker";
 import { environment } from "../environments/environment";
 import { ChatComponent } from './pages/chat/chat.component';
 import { BooleanToNumberPipe } from './pipes/boolean-to-number.pipe';
+import { AccountCircleComponent } from './components/account-circle/account-circle.component';
 
 @NgModule({
-  declarations: [AppComponent, AuthComponent, PageNotFoundComponent, ContactsComponent, CallComponent, ChatComponent, BooleanToNumberPipe],
+  declarations: [AppComponent, AuthComponent, PageNotFoundComponent, ContactsComponent, CallComponent, ChatComponent, BooleanToNumberPipe, AccountCircleComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+svg {
+  width: auto;
+  height: 100%;
+  fill: black;
+}
+
+@media (prefers-color-scheme: dark) {
+  svg {
+    fill: white;
+  }
+}
