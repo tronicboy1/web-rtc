@@ -20,16 +20,23 @@ ul {
 li {
   cursor: pointer;
   border-top: solid 1px var(--primary-color);
-  padding: 1rem 0;
+  padding: 1rem;
   flex: 1 1;
   width: 100%;
   text-align: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 li:first-child {
   border: none;
 }
 li:hover {
   background-color: var(--secondary-hover);
+}
+li svg {
+  height: 24px;
 }
 
 #account-menu {
