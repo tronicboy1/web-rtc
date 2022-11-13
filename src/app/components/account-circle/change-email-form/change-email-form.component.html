@@ -1,1 +1,8 @@
-<p>change-email-form works!</p>
+<form (submit)="this.handleSubmit($event)">
+  <label for="new-email">New Email</label>
+  <input type="email" name="new-email" id="new-email" required autocomplete="email">
+  <button type="submit">
+    <loading-spinner *ngIf="this.loading; else submitText" color="white"></loading-spinner>
+    <ng-template #submitText>Change Email</ng-template>
+  </button>
+</form>

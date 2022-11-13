@@ -11,7 +11,7 @@
 
 <base-modal *ngIf="this.showChangeEmailModal" show modal-title="Change Email"
   (modal-closed)="this.toggleChangeEmailModal(false)">
-  <app-change-email-form></app-change-email-form>
+  <app-change-email-form (submitted)="this.toggleChangeEmailModal(false)"></app-change-email-form>
 </base-modal>
 <base-modal *ngIf="this.showAccountDetailsModal" show modal-title="Account Details"
   (modal-closed)="this.toggleAccountDetailsModal(false)">

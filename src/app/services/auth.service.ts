@@ -8,6 +8,7 @@ import {
   signOut,
   updatePassword,
   fetchSignInMethodsForEmail,
+  updateEmail,
 } from "firebase/auth";
 import { filter, map, Observable } from "rxjs";
 import type { OperatorFunction } from "rxjs";
@@ -51,17 +52,23 @@ export class AuthService extends FirebaseAuth {
     return sendPasswordResetEmail(this.auth, email);
   }
 
+  public changeEmail(newEmail: string) {
+    const { currentUser } = this.auth;
+    if (!currentUser) throw Error("Cannot change email if not logged in.");
+    return updateEmail(currentUser, newEmail);
+  }
+
   public changePassword(email: string, password: string, newPassword: string) {
-    if (!this.user) throw Error("Cannot change password if not logged in.");
-    return updatePassword(this.user, newPassword);
+    const { currentUser } = this.auth;
+    if (!currentUser) throw Error("Cannot change password if not logged in.");
+    return updatePassword(currentUser, newPassword);
   }
 
   public signOutUser() {
-    if (!this.user) throw Error("User data was not available.");
-    this.userService.setOnlineStatus(this.user.uid, "offline");
-    return signOut(this.auth).then(() => {
-      this.user = null;
-    });
+    const { currentUser } = this.auth;
+    if (!currentUser) throw Error("User data was not available.");
+    this.userService.setOnlineStatus(currentUser.uid, "offline");
+    return signOut(this.auth);
   }
 
   public getAuthState() {
