@@ -56,7 +56,7 @@ export class AuthService extends FirebaseAuth {
   public changeEmail(newEmail: string) {
     const { currentUser } = this.auth;
     if (!currentUser) throw Error("Cannot change email if not logged in.");
-    return updateEmail(currentUser, newEmail);
+    return updateEmail(currentUser, newEmail).then(() => this.userService.setUidRecord(newEmail, currentUser.uid));
   }
 
   public updateAccount(accountData: Parameters<typeof updateProfile>[1]) {
@@ -65,7 +65,7 @@ export class AuthService extends FirebaseAuth {
     return updateProfile(currentUser, accountData);
   }
 
-  public changePassword(email: string, password: string, newPassword: string) {
+  public changePassword(newPassword: string) {
     const { currentUser } = this.auth;
     if (!currentUser) throw Error("Cannot change password if not logged in.");
     return updatePassword(currentUser, newPassword);

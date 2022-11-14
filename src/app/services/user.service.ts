@@ -2,10 +2,17 @@ import { Injectable } from "@angular/core";
 import { FirebaseFirestore } from "@custom-firebase/inheritables/firestore";
 import { map, Observable } from "rxjs";
 import { onSnapshot, doc, updateDoc, setDoc, collection, query, where, getDocs, getDoc } from "firebase/firestore";
+import type { updateProfile } from "firebase/auth";
 
+type AccountDetails = Parameters<typeof updateProfile>[1];
 export type UserStatus = "online" | "away" | "offline" | "unknown" | "new-message" | undefined;
 export type UidRecord = { email: string; uid: string };
-export type UserData = { uid: string; email: string; status?: UserStatus; contacts?: string[] };
+export type UserData = {
+  uid: string;
+  email: string;
+  status?: UserStatus;
+  contacts?: string[];
+} & AccountDetails;
 
 @Injectable({
   providedIn: "root",
@@ -61,5 +68,10 @@ export class UserService extends FirebaseFirestore {
       const data = first.data() as UidRecord;
       return data.uid;
     });
+  }
+
+  public updateUserRecord(myUid: string, data: AccountDetails) {
+    const ref = doc(this.db, `${UserService.usersPath}/${myUid}`);
+    return updateDoc(ref, data);
   }
 }
