@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { connectDatabaseEmulator, getDatabase } from "firebase/database";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
+import { connectStorageEmulator, getStorage } from "firebase/storage";
 import { environment } from "../environments/environment";
 import { firebaseConfig } from "./config";
 // TODO: Add SDKs for Firebase products that you want to use
@@ -20,6 +21,8 @@ if (!environment.production) {
     "localhost",
     environment.emulatorPorts.database, // ここはfirebase.jsonに入っている設定に合わせましょう！
   );
+  const storage = getStorage(app);
+  connectStorageEmulator(storage, "localhost", environment.emulatorPorts.storage);
 }
 
 if (self instanceof Window && environment.production) {

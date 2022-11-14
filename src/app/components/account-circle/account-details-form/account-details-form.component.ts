@@ -17,8 +17,8 @@ export class AccountDetailsFormComponent implements OnInit, OnDestroy {
   public user?: User;
   private photoPreview?: string;
   get photoURL(): string | undefined {
-    if (this.user?.photoURL) return this.user.photoURL;
     if (this.photoPreview) return this.photoPreview;
+    if (this.user?.photoURL) return this.user.photoURL;
     return undefined;
   }
 
@@ -44,12 +44,11 @@ export class AccountDetailsFormComponent implements OnInit, OnDestroy {
     if (!(form instanceof HTMLFormElement)) throw TypeError("Listener must be used with form.");
     const formData = new FormData(form);
     const displayName = formData.get("display-name")!.toString().trim();
-    const avatar = formData.get("avatar");
+    const avatar = formData.get("avatar")!;
+    if (!(avatar instanceof File)) throw TypeError("Avatar formdata should be file.");
     this.loading = true;
-    new Promise<string | undefined>((resolve) => {
-      if (avatar && avatar instanceof File && avatar.size) return resolve(undefined);
-    })
-      .then((photoURL) => this.authService.updateAccount({ displayName, photoURL }))
+    this.authService
+      .updateAccount({ displayName }, avatar.size ? avatar : undefined)
       .then(() => this.submitted.emit(null))
       .catch(console.error)
       .finally(() => (this.loading = false));

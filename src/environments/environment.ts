@@ -9,6 +9,7 @@ export const environment = {
     functions: 5001,
     firestore: 8080,
     database: 9000,
+    storage: 9199,
   },
 };
 
