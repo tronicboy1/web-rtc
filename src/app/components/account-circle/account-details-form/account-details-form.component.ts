@@ -3,6 +3,7 @@ import { AuthService } from "@services/auth.service";
 import type { User } from "firebase/auth";
 import { Subscription } from "rxjs";
 import "@web-components/loading-spinner";
+import { Utils } from "src/app/utils";
 
 @Component({
   selector: "app-account-details-form",
@@ -14,6 +15,12 @@ export class AccountDetailsFormComponent implements OnInit, OnDestroy {
   @Output()
   public submitted = new EventEmitter<null>();
   public user?: User;
+  private photoPreview?: string;
+  get photoURL(): string | undefined {
+    if (this.user?.photoURL) return this.user.photoURL;
+    if (this.photoPreview) return this.photoPreview;
+    return undefined;
+  }
 
   private subscriptions: Subscription[] = [];
 
@@ -43,5 +50,15 @@ export class AccountDetailsFormComponent implements OnInit, OnDestroy {
       .then(() => this.submitted.emit(null))
       .catch(console.error)
       .finally(() => (this.loading = false));
+  };
+
+  public handleFileInput: EventListener = (event) => {
+    const input = event.currentTarget;
+    if (!(input instanceof HTMLInputElement)) throw TypeError("This listener must be used with file input.");
+    const { files } = input;
+    if (!files) throw TypeError("Files were not associated with file input.");
+    const photo = files[0];
+    if (!photo.size) return;
+    Utils.getImageDataURL(photo).then((dataURL) => (this.photoPreview = dataURL));
   };
 }

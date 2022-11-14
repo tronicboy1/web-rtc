@@ -58,3 +58,8 @@ form:invalid button {
   border-color: var(--secondary-color);
   cursor: not-allowed;
 }
+
+input[type="file"] {
+  padding: 0.5rem;
+  height: auto;
+}
