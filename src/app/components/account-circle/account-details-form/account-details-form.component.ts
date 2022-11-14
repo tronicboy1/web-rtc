@@ -44,9 +44,12 @@ export class AccountDetailsFormComponent implements OnInit, OnDestroy {
     if (!(form instanceof HTMLFormElement)) throw TypeError("Listener must be used with form.");
     const formData = new FormData(form);
     const displayName = formData.get("display-name")!.toString().trim();
+    const avatar = formData.get("avatar");
     this.loading = true;
-    this.authService
-      .updateAccount({ displayName })
+    new Promise<string | undefined>((resolve) => {
+      if (avatar && avatar instanceof File && avatar.size) return resolve(undefined);
+    })
+      .then((photoURL) => this.authService.updateAccount({ displayName, photoURL }))
       .then(() => this.submitted.emit(null))
       .catch(console.error)
       .finally(() => (this.loading = false));
