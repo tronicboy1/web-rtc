@@ -82,6 +82,7 @@ li .contact-email {
 }
 .contact-email h5 {
   font-weight: 400;
+  margin: 0;
 }
 li .contact-email small {
   text-align: left;
@@ -125,4 +126,12 @@ form:invalid button {
   border: 1px solid var(--danger-color);
   border-radius: 4px;
   display: block;
+}
+
+img {
+  border: 2px solid var(--secondary-color);
+  border-radius: 50%;
+  max-width: 50px;
+  max-height: 50px;
+  margin: 0 auto 0.25rem auto;
 }
