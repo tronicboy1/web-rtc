@@ -12,9 +12,11 @@
   <ul>
     <li *ngFor="let contact of this.contacts">
       <span class="activity" [ngClass]="contact.status">{{ contact.status === "unknown" ? "?" : "" }}</span>
-      <img *ngIf="contact.photoURL" [src]="contact.photoURL">
       <div class="contact-email" (click)="this.handleContactClick(contact.uid)">
-        <h5>{{ contact.email }}</h5>
+        <div class="email-photo-row">
+          <img *ngIf="contact.photoURL" [src]="contact.photoURL">
+          <h5>{{ contact.displayName ? contact.displayName : contact.email }}</h5>
+        </div>
         <small *ngIf="contact.latestMessage">{{ contact.latestMessage.message }}</small>
       </div>
       <div class="contact-buttons">

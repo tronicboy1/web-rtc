@@ -83,6 +83,12 @@ li .contact-email {
 .contact-email h5 {
   font-weight: 400;
   margin: 0;
+  flex: 1;
+}
+.contact-email div {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.25rem;
 }
 li .contact-email small {
   text-align: left;
@@ -133,5 +139,6 @@ img {
   border-radius: 50%;
   max-width: 50px;
   max-height: 50px;
-  margin: 0 auto 0.25rem auto;
+  margin-right: 0.5rem;
+  flex: 0 0;
 }
