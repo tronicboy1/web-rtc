@@ -34,7 +34,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
         .subscribe((messages) => {
           this.messages = messages;
         }),
-      this.authService.getUid().subscribe((uid) => (this.myUid = uid)),
+      this.authService
+        .getUid()
+        .pipe(take(1))
+        .subscribe((uid) => (this.myUid = uid)),
     );
   }
 
