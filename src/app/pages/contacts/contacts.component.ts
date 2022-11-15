@@ -32,15 +32,33 @@ export class ContactsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.subscribeToContacts();
+    document.addEventListener("visibilitychange", this.handleVisibilityStateChange);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+    document.removeEventListener("visibilitychange", this.handleVisibilityStateChange);
+  }
+
+  private handleVisibilityStateChange = () => {
+    const { visibilityState } = document;
+    switch (visibilityState) {
+      case "hidden":
+        this.subscriptions.forEach((sub) => sub.unsubscribe());
+        break;
+      case "visible":
+        this.subscribeToContacts();
+        break;
+    }
+  };
+
+  private subscribeToContacts() {
     this.subscriptions.push(
       this.contactService.watchContacts(this.deleteSubject).subscribe((contacts) => {
         this.contacts = contacts;
       }),
     );
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   public handleAddContactSubmit: EventListener = (event) => {
