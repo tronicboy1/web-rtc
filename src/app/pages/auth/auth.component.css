@@ -50,7 +50,9 @@ button {
   font-size: 1.1rem;
   height: 50px;
   color: white;
-  background-color: var(--highlight-color);
+
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
   border-radius: 4px;
   flex: 0 1 45%;
   cursor: pointer;
@@ -62,12 +64,12 @@ button:disabled {
 }
 
 button.active {
-  background-color: var(--secondary-color);
-  border-color: var(--secondary-color);
+  border-color: var(--highlight-color);
+  background-color: var(--highlight-color);
 }
 button.active:hover {
-  background-color: var(--secondary-color);
-  border-color: var(--secondary-color);
+  background-color: var(--highlight-hover);
+  border-color: var(--highlight-hover);
 }
 button:hover {
   background-color: var(--highlight-hover);
