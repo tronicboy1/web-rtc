@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { AuthService } from "@services/auth.service";
+import { UserService } from "@services/user.service";
 import "@web-components/base-modal";
-import { fromEvent, map, Subscription, take } from "rxjs";
 
 @Component({
   selector: "app-account-circle",
@@ -20,17 +20,21 @@ export class AccountCircleComponent implements OnInit, OnDestroy, AfterViewInit 
   private avatarElement!: ElementRef<HTMLImageElement>;
   private subscriptions: Subscription[] = [];
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private userService: UserService) {}
 
   ngOnInit(): void {
     this.subscriptions.push(
       this.authService
-        .waitForUser()
-        .pipe(map((user) => user.photoURL))
+        .getUid()
+        .pipe(
+          take(1),
+          mergeMap((uid) => this.userService.watchUserDoc(uid)),
+          map((userData) => userData.photoURL),
+        )
         .subscribe((photoURL) => {
           if (!photoURL) {
-            this.photoSrc = undefined;
             this.photoLoaded = false;
+            this.photoSrc = undefined;
             return;
           }
           this.photoSrc = photoURL;
@@ -40,9 +44,9 @@ export class AccountCircleComponent implements OnInit, OnDestroy, AfterViewInit 
 
   ngAfterViewInit(): void {
     if (!this.avatarElement) throw Error("Avatar image element not found.");
-    fromEvent(this.avatarElement.nativeElement, "load")
-      .pipe(take(1))
-      .subscribe(() => (this.photoLoaded = true));
+    this.subscriptions.push(
+      fromEvent(this.avatarElement.nativeElement, "load").subscribe(() => (this.photoLoaded = true)),
+    );
   }
 
   ngOnDestroy(): void {
