@@ -1,13 +1,12 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
-import { AuthService } from "@services/auth.service";
-import { ChatService, Message } from "@services/chat.service";
+import { Message } from "@services/chat.service";
 import { ContactService } from "@services/contact.service";
 import { UserData } from "@services/user.service";
 import "@web-components/base-modal";
-import { catchError, finalize, mergeMap, Observable, of, Subject, Subscription, take } from "rxjs";
-import { CallQueryParameters } from "src/app/app-routing.module";
+import { catchError, finalize, Observable, of, Subject, Subscription } from "rxjs";
 import { Utils } from "src/app/utils";
+
+export type ContactWithMessage = UserData & { latestMessage?: Message };
 
 @Component({
   selector: "app-contacts",
@@ -17,19 +16,14 @@ import { Utils } from "src/app/utils";
 export class ContactsComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private errorTimeout?: ReturnType<typeof setTimeout>;
-  public contacts: (UserData & { latestMessage?: Message })[] = [];
+  public contacts: ContactWithMessage[] = [];
   public loading = false;
   public error = "";
   public uidToDelete = "";
   /** Must manually stop observables after any deletion else you get ghost contacts. */
   private deleteSubject = new Subject<string>();
 
-  constructor(
-    private contactService: ContactService,
-    private router: Router,
-    private authService: AuthService,
-    private chatService: ChatService,
-  ) {}
+  constructor(private contactService: ContactService) {}
 
   ngOnInit(): void {
     this.subscribeToContacts();
@@ -100,32 +94,7 @@ export class ContactsComponent implements OnInit, OnDestroy {
     this.errorTimeout = setTimeout(() => (this.error = ""), 5000);
   }
 
-  public handleContactClick = (theirUid: string) => {
-    this.authService
-      .getUid()
-      .pipe(
-        mergeMap((myUid) => this.chatService.getRoom([myUid, theirUid])),
-        take(1),
-      )
-      .subscribe((roomId) => {
-        if (!roomId) throw Error("Room with both users was not found.");
-        this.router.navigate(["/chat", roomId]);
-      });
-  };
-  public handleAudioCallClick = (event: Event, uid: string) => {
-    event.stopPropagation();
-    const queryParams: CallQueryParameters = { "their-uid": uid, "is-video": 0, polite: 0 };
-    this.router.navigate(["/call"], { queryParams });
-  };
-
-  public handleVideoCallClick = (event: Event, uid: string) => {
-    event.stopPropagation();
-    const queryParams: CallQueryParameters = { "their-uid": uid, "is-video": 1, polite: 0 };
-    this.router.navigate(["/call"], { queryParams });
-  };
-
-  public handlContactTileDeleteClick = (event: Event, uid: string) => {
-    event.stopPropagation();
+  public handlContactTileDeleteClick = (uid: string) => {
     this.uidToDelete = uid;
   };
   public handleDeleteContact = () => {

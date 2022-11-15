@@ -34,17 +34,16 @@ export class AuthService extends FirebaseAuth {
   public createUser(email: string, password: string) {
     return createUserWithEmailAndPassword(this.auth, email, password).then((creds) => {
       this.user = creds.user;
-      this.userService.setUidRecord(email, this.user.uid);
-      return creds;
+      return this.userService.setUidRecord(email, this.user.uid);
     });
   }
 
   public signInUser(email: string, password: string) {
     return signInWithEmailAndPassword(this.auth, email, password).then((creds) => {
       this.user = creds.user;
-      this.userService.setUidRecord(email, this.user.uid);
-      this.userService.setOnlineStatus(creds.user.uid, "online");
-      return creds;
+      return this.userService
+        .setUidRecord(email, this.user.uid)
+        .then(() => this.userService.setOnlineStatus(creds.user.uid, "online"));
     });
   }
 

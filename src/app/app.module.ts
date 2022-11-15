@@ -17,9 +17,10 @@ import { AccountCircleComponent } from './components/account-circle/account-circ
 import { AccountDetailsFormComponent } from './components/account-circle/account-details-form/account-details-form.component';
 import { ChangeEmailFormComponent } from './components/account-circle/change-email-form/change-email-form.component';
 import { ChangeAvatarFormComponent } from './components/account-circle/change-avatar-form/change-avatar-form.component';
+import { ContactComponent } from './pages/contacts/contact/contact.component';
 
 @NgModule({
-  declarations: [AppComponent, AuthComponent, PageNotFoundComponent, ContactsComponent, CallComponent, ChatComponent, BooleanToNumberPipe, AccountCircleComponent, AccountDetailsFormComponent, ChangeEmailFormComponent, ChangeAvatarFormComponent],
+  declarations: [AppComponent, AuthComponent, PageNotFoundComponent, ContactsComponent, CallComponent, ChatComponent, BooleanToNumberPipe, AccountCircleComponent, AccountDetailsFormComponent, ChangeEmailFormComponent, ChangeAvatarFormComponent, ContactComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
