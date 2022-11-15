@@ -1,34 +1,49 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { DomSanitizer } from "@angular/platform-browser";
 import { AuthService } from "@services/auth.service";
-import { UserData, UserService } from "@services/user.service";
 import "@web-components/base-modal";
-import { mergeMap, Subscription } from "rxjs";
+import { fromEvent, map, Subscription, take } from "rxjs";
 
 @Component({
   selector: "app-account-circle",
   templateUrl: "./account-circle.component.html",
   styleUrls: ["./account-circle.component.css"],
 })
-export class AccountCircleComponent implements OnInit, OnDestroy {
+export class AccountCircleComponent implements OnInit, OnDestroy, AfterViewInit {
   public showAccountMenu = false;
   public showChangeEmailModal = false;
   public showChangeAvatarModal = false;
   public showAccountDetailsModal = false;
-  public userData?: UserData;
+  public photoSrc?: string;
+  public photoLoaded = false;
 
+  @ViewChild("avatar")
+  private avatarElement!: ElementRef<HTMLImageElement>;
   private subscriptions: Subscription[] = [];
 
-  constructor(private authService: AuthService, private userService: UserService) {}
+  constructor(private authService: AuthService, private santizer: DomSanitizer) {}
 
   ngOnInit(): void {
     this.subscriptions.push(
       this.authService
-        .getUid()
-        .pipe(mergeMap((uid) => this.userService.watchUserDoc(uid)))
-        .subscribe((userData) => {
-          this.userData = userData;
+        .waitForUser()
+        .pipe(map((user) => user.photoURL))
+        .subscribe((photoURL) => {
+          if (!photoURL) {
+            this.photoSrc = undefined;
+            this.photoLoaded = false;
+            return;
+          }
+          this.photoSrc = photoURL;
         }),
     );
+  }
+
+  ngAfterViewInit(): void {
+    if (!this.avatarElement) throw Error("Avatar image element not found.");
+    fromEvent(this.avatarElement.nativeElement, "load")
+      .pipe(take(1))
+      .subscribe(() => (this.photoLoaded = true));
   }
 
   ngOnDestroy(): void {
