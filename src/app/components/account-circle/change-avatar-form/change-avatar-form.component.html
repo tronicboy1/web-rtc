@@ -1,18 +1,29 @@
-<form *ngIf="this.user; else loadingSpinner" (submit)="this.handleSubmit($event)">
-  <img *ngIf="this.photoURL; else noAvatar" [attr.src]="this.photoURL" alt="Avatar">
-  <ng-template #noAvatar>
-    <p>No Avatar</p>
-  </ng-template>
-  <input name="avatar" id="avatar" type="file" accept="image/png, image/jpeg" (input)="this.handleFileInput($event)"
-    required>
-  <label class="photo-label" for="avatar" [class.has-image]="this.photoURL"><span>{{this.filename ??
+<div id="preview-box" class="preview-box"
+  [style.display]="(this.previewImage || this.user?.photoURL) ? 'flex' : 'none'">
+  <div class="preview-box" style="display: flex;">
+    <p>Original</p>
+    <img *ngIf="this.user?.photoURL; else noAvatar" id="original" [src]="this.user?.photoURL" alt="Original Avatar">
+  </div>
+  <div class="preview-box" [style.display]="this.photoPreview ? 'flex' : 'none'">
+    <p>New</p>
+    <img crossorigin="anonymous" [attr.src]="this.photoPreview" alt="New Avatar" #previewImage>
+    <p>After Compression</p>
+    <canvas height="100" width="100" #photoCanvas></canvas>
+  </div>
+  <input name="avatar" id="preview-input" type="file" accept="image/png, image/jpeg"
+    (input)="this.handleFileInput($event)" required>
+  <label class="photo-label" for="preview-input"><span>{{this.filename ??
       "Select Photo"}}</span></label>
+</div>
+<ng-template [ngIf]="!(this.user?.photoURL || this.previewImage)" #noAvatar>
+  <p>No Avatar</p>
+</ng-template>
+
+
+<form (submit)="this.handleSubmit($event)">
+  <input type="file" name="avatar" required #fileInput>
   <button type="submit">
     <loading-spinner *ngIf="this.loading; else notLoading" color="white"></loading-spinner>
     <ng-template #notLoading>Upload</ng-template>
   </button>
 </form>
-
-<ng-template #loadingSpinner>
-  <loading-spinner></loading-spinner>
-</ng-template>

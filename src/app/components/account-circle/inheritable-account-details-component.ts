@@ -12,7 +12,7 @@ export class InheritableAccountDetailsComponent implements OnInit, OnDestroy {
   @Output()
   public submitted = new EventEmitter<null>();
 
-  private subscriptions: Subscription[] = [];
+  protected subscriptions: Subscription[] = [];
 
   constructor(protected authService: AuthService) {}
 
