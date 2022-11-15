@@ -43,6 +43,7 @@ export class AuthService extends FirebaseAuth {
     return signInWithEmailAndPassword(this.auth, email, password).then((creds) => {
       this.user = creds.user;
       this.userService.setUidRecord(email, this.user.uid);
+      this.userService.setOnlineStatus(creds.user.uid, "online");
       return creds;
     });
   }
@@ -88,8 +89,7 @@ export class AuthService extends FirebaseAuth {
   public signOutUser() {
     const { currentUser } = this.auth;
     if (!currentUser) throw Error("User data was not available.");
-    this.userService.setOnlineStatus(currentUser.uid, "offline");
-    return signOut(this.auth);
+    return this.userService.setOnlineStatus(currentUser.uid, "offline").then(() => signOut(this.auth));
   }
 
   public getAuthState() {

@@ -2,8 +2,8 @@ import { Component, HostListener, OnDestroy, OnInit } from "@angular/core";
 import { ChildrenOutletContexts, Router } from "@angular/router";
 import { AuthService } from "@services/auth.service";
 import { CallService } from "@services/call.service";
-import { UserService } from "@services/user.service";
-import type { Subscription } from "rxjs";
+import { UserService, UserStatus } from "@services/user.service";
+import { mergeMap, Subscription, take } from "rxjs";
 import { CallQueryParameters } from "./app-routing.module";
 import "@web-components/base-modal";
 import { RtcService } from "@services/rtc.service";
@@ -19,8 +19,7 @@ export class AppComponent implements OnInit, OnDestroy {
   title = "angular";
   public isAuth = false;
   private subscritions: Subscription[] = [];
-  /** Displays email in nav bar. */
-  public email?: string;
+  private incomingCallSubscription = new Subscription();
   /** Opens modal if has incoming call. */
   public incomingCall?: CallQueryParameters & { email: string };
   get incomingCallTitle(): string {
@@ -55,25 +54,55 @@ export class AppComponent implements OnInit, OnDestroy {
       this.authService.getAuthState().subscribe((user) => {
         this.isAuth = Boolean(user);
         if (!user) return this.handleSignOut();
-        /** set user status to online */
-        this.userService.setOnlineStatus(user.uid, "online");
-        this.email = user.email!;
       }),
     );
-    this.subscritions.push(
-      this.callService.watchWithDetailsWhileIgnoringUnknownCallers().subscribe((invitation) => {
+    this.subscribeToIncomingCalls();
+
+    /** Set user status to online */
+    this.setUserStatus("online");
+    document.addEventListener("visibilitychange", this.handleVisibilityChange);
+  }
+
+  ngOnDestroy(): void {
+    this.subscritions.forEach((sub) => sub.unsubscribe());
+    document.removeEventListener("visibilitychange", this.handleVisibilityChange);
+  }
+
+  private handleVisibilityChange = () => {
+    const { visibilityState } = document;
+    switch (visibilityState) {
+      case "hidden":
+        this.setUserStatus("away");
+        this.incomingCallSubscription.unsubscribe();
+        break;
+      case "visible":
+        this.setUserStatus("online");
+        this.subscribeToIncomingCalls();
+        break;
+    }
+  };
+
+  private setUserStatus(status: UserStatus) {
+    this.authService
+      .getUid()
+      .pipe(
+        take(1),
+        mergeMap((uid) => this.userService.setOnlineStatus(uid, status)),
+      )
+      .subscribe();
+  }
+
+  private subscribeToIncomingCalls() {
+    this.incomingCallSubscription = this.callService
+      .watchWithDetailsWhileIgnoringUnknownCallers()
+      .subscribe((invitation) => {
         this.incomingCall = {
           "their-uid": invitation.sender,
           "is-video": Number(invitation.isVideo),
           polite: 1,
           email: invitation.email,
         };
-      }),
-    );
-  }
-
-  ngOnDestroy(): void {
-    this.subscritions.forEach((sub) => sub.unsubscribe());
+      });
   }
 
   /** beforeunload does not work on iOS */
