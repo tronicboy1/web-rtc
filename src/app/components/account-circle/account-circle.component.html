@@ -39,7 +39,7 @@
 </base-modal>
 <base-modal *ngIf="this.showChangeAvatarModal" show modal-title="Change Avatar"
   (modal-closed)="this.toggleChangeAvatarModal(false)">
-  <app-change-avatar-form></app-change-avatar-form>
+  <app-change-avatar-form (submitted)="this.toggleChangeAvatarModal(false)"></app-change-avatar-form>
 </base-modal>
 <base-modal *ngIf="this.showAccountDetailsModal" show modal-title="Account Details"
   (modal-closed)="this.toggleAccountDetailsModal(false)">

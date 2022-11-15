@@ -6,10 +6,11 @@ import { InheritableAccountDetailsComponent } from "../inheritable-account-detai
 @Component({
   selector: "app-change-avatar-form",
   templateUrl: "./change-avatar-form.component.html",
-  styleUrls: ["./change-avatar-form.component.css", "../../../styles/basic-form.css"],
+  styleUrls: ["../../../styles/basic-form.css", "./change-avatar-form.component.css"],
 })
 export class ChangeAvatarFormComponent extends InheritableAccountDetailsComponent {
   public user?: User;
+  public filename?: string;
   private photoPreview?: string;
   get photoURL(): string | undefined {
     if (this.photoPreview) return this.photoPreview;
@@ -22,24 +23,26 @@ export class ChangeAvatarFormComponent extends InheritableAccountDetailsComponen
     const form = event.currentTarget;
     if (!(form instanceof HTMLFormElement)) throw TypeError("Listener must be used with form.");
     const formData = new FormData(form);
-    const displayName = formData.get("display-name")!.toString().trim();
     const avatar = formData.get("avatar")!;
     if (!(avatar instanceof File)) throw TypeError("Avatar formdata should be file.");
+    if (!avatar.size) return;
     this.loading = true;
     this.authService
-      .updateAccount({ displayName }, avatar.size ? avatar : undefined)
+      .updateAccount({}, avatar)
       .then(() => this.submitted.emit(null))
       .catch(console.error)
       .finally(() => (this.loading = false));
   };
 
   public handleFileInput: EventListener = (event) => {
+    this.filename = undefined;
     const input = event.currentTarget;
     if (!(input instanceof HTMLInputElement)) throw TypeError("This listener must be used with file input.");
     const { files } = input;
     if (!files) throw TypeError("Files were not associated with file input.");
     const photo = files[0];
     if (!photo.size) return;
+    this.filename = photo.name;
     Utils.getImageDataURL(photo).then((dataURL) => (this.photoPreview = dataURL));
   };
 }
