@@ -31,6 +31,10 @@ li {
   cursor: pointer;
 }
 
+.last {
+  margin-bottom: 0;
+}
+
 li .activity {
   position: absolute;
   z-index: 1;

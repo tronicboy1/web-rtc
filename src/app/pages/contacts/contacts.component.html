@@ -10,8 +10,8 @@
     </button>
   </form>
   <ul>
-    <app-contact *ngFor="let contact of this.contacts" [contact]="contact"
-      (delete)="this.handlContactTileDeleteClick($event)"></app-contact>
+    <app-contact *ngFor="let contact of this.contacts; let last = last" [contact]="contact"
+      (delete)="this.handlContactTileDeleteClick($event)" [last]="last"></app-contact>
   </ul>
 </div>
 

@@ -1,4 +1,4 @@
-<li *ngIf="this.contact" (click)="this.handleContactClick(contact.uid)">
+<li *ngIf="this.contact" (click)="this.handleContactClick(contact.uid)" [class.last]="this.last">
   <span class="activity" [ngClass]="contact.status">{{ contact.status === "unknown" ? "?" : "" }}</span>
   <img *ngIf="contact.photoURL" [src]="contact.photoURL" style="grid-column: 1; grid-row: 1;" class="contact-email">
   <h5 [ngClass]="{ 'no-picture': !contact.photoURL, 'picture': contact.photoURL}" class="contact-email">{{

@@ -14,6 +14,8 @@ import { ContactWithMessage } from "../contacts.component";
 export class ContactComponent implements OnInit {
   @Input("contact")
   public contact?: ContactWithMessage;
+  @Input("last")
+  public last?: boolean;
   @Output()
   public delete = new EventEmitter<string>();
 
