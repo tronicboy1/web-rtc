@@ -25,6 +25,10 @@ ul {
 li {
   display: grid;
   grid-auto-flow: column;
+  grid-template-columns: 70% auto;
+  grid-template-rows: 33% auto 33%;
+  grid-column-gap: 4px;
+  grid-row-gap: 4px;
   position: relative;
   align-items: center;
   border: 1px var(--secondary-color) solid;
@@ -37,6 +41,7 @@ li {
   font-size: 1.8rem;
   user-select: none;
   -webkit-user-select: none;
+  cursor: pointer;
 }
 li:last-child {
   margin-bottom: 0;
@@ -70,50 +75,59 @@ li .new-message {
   border: 3px solid var(--highlight-color);
 }
 
-li .contact-email {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: left;
-  padding-right: 4px;
+.contact-email {
   word-wrap: break-word;
-  cursor: pointer;
   overflow: hidden;
 }
-.contact-email h5 {
+
+li h5 {
+  display: inline-block;
+  align-items: center;
+  justify-content: center;
   font-weight: 400;
   margin: 0;
-  flex: 1;
+  grid-column: 1;
 }
-.contact-email div {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.25rem;
+.has-picture {
+  grid-row: 2;
 }
-li .contact-email small {
-  text-align: left;
+.no-picture {
+  grid-row: 1 / span 2;
+}
+
+.message-preview {
+  height: 100%;
+  max-width: 100%;
   padding: 0.25rem 0.5rem;
   background-color: var(--primary-color);
   border-radius: var(--radius);
+
+  display: flex;
+  align-items: center;
+}
+.message-preview small {
+  margin: auto 0;
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  min-width: 0px;
+  flex: 1 0;
 }
 
-li .contact-buttons {
+.contact-buttons {
+  grid-column: 2;
   display: flex;
   max-width: 100%;
   height: auto;
   flex-wrap: wrap;
 }
 
-li .contact-buttons button {
+li button {
   flex: 1 1 90%;
-  margin: 4px 4px;
+  height: 100%;
 }
 
-li .contact-buttons button:disabled {
+li button:disabled {
   background-color: grey;
   border-color: grey;
 }
@@ -139,6 +153,5 @@ img {
   border-radius: 50%;
   max-width: 50px;
   max-height: 50px;
-  margin-right: 0.5rem;
-  flex: 0 0;
+  margin: auto;
 }

@@ -12,6 +12,7 @@ import { mergeMap, Subscription } from "rxjs";
 export class AccountCircleComponent implements OnInit, OnDestroy {
   public showAccountMenu = false;
   public showChangeEmailModal = false;
+  public showChangeAvatarModal = false;
   public showAccountDetailsModal = false;
   public userData?: UserData;
 
@@ -38,6 +39,10 @@ export class AccountCircleComponent implements OnInit, OnDestroy {
   public toggleChangeEmailModal = (force?: boolean) => {
     this.showAccountMenu = false;
     this.showChangeEmailModal = force ?? !this.showChangeEmailModal;
+  };
+  public toggleChangeAvatarModal = (force?: boolean) => {
+    this.showAccountMenu = false;
+    this.showChangeAvatarModal = force ?? !this.showChangeAvatarModal;
   };
   public toggleAccountDetailsModal = (force?: boolean) => {
     this.showAccountMenu = false;

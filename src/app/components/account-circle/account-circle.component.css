@@ -61,6 +61,7 @@ li svg {
   z-index: 12;
   font-size: 1.25rem;
   font-weight: 600;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.384);
 }
 #account-menu::after {
   width: 0;

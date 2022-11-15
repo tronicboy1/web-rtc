@@ -94,17 +94,22 @@ export class ContactsComponent implements OnInit, OnDestroy {
         this.router.navigate(["/chat", roomId]);
       });
   };
-  public handleAudioCallClick = (uid: string) => {
+  public handleAudioCallClick = (event: Event, uid: string) => {
+    event.stopPropagation();
     const queryParams: CallQueryParameters = { "their-uid": uid, "is-video": 0, polite: 0 };
     this.router.navigate(["/call"], { queryParams });
   };
 
-  public handleVideoCallClick = (uid: string) => {
+  public handleVideoCallClick = (event: Event, uid: string) => {
+    event.stopPropagation();
     const queryParams: CallQueryParameters = { "their-uid": uid, "is-video": 1, polite: 0 };
     this.router.navigate(["/call"], { queryParams });
   };
 
-  public handlContactTileDeleteClick = (uid: string) => (this.uidToDelete = uid);
+  public handlContactTileDeleteClick = (event: Event, uid: string) => {
+    event.stopPropagation();
+    this.uidToDelete = uid;
+  };
   public handleDeleteContact = () => {
     this.contactService.deleteContact(this.uidToDelete);
     this.deleteSubject.next(this.uidToDelete);
