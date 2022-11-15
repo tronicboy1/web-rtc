@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ChildrenOutletContexts, Router } from "@angular/router";
 import { AuthService } from "@services/auth.service";
 import { CallService } from "@services/call.service";
@@ -103,16 +103,6 @@ export class AppComponent implements OnInit, OnDestroy {
           email: invitation.email,
         };
       });
-  }
-
-  /** beforeunload does not work on iOS */
-  @HostListener("window:beforeunload", ["$event"])
-  @HostListener("window:unload", ["$event"])
-  public unloadHandler(event: Event) {
-    /** Set user status to offline */
-    const uid = this.authService.user?.uid;
-    if (!uid) return;
-    this.userService.setOnlineStatus(uid, "away");
   }
 
   private handleSignOut() {
