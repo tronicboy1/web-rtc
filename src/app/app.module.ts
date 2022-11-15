@@ -16,9 +16,10 @@ import { BooleanToNumberPipe } from './pipes/boolean-to-number.pipe';
 import { AccountCircleComponent } from './components/account-circle/account-circle.component';
 import { AccountDetailsFormComponent } from './components/account-circle/account-details-form/account-details-form.component';
 import { ChangeEmailFormComponent } from './components/account-circle/change-email-form/change-email-form.component';
+import { ChangeAvatarFormComponent } from './components/account-circle/change-avatar-form/change-avatar-form.component';
 
 @NgModule({
-  declarations: [AppComponent, AuthComponent, PageNotFoundComponent, ContactsComponent, CallComponent, ChatComponent, BooleanToNumberPipe, AccountCircleComponent, AccountDetailsFormComponent, ChangeEmailFormComponent],
+  declarations: [AppComponent, AuthComponent, PageNotFoundComponent, ContactsComponent, CallComponent, ChatComponent, BooleanToNumberPipe, AccountCircleComponent, AccountDetailsFormComponent, ChangeEmailFormComponent, ChangeAvatarFormComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

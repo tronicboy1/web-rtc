@@ -1,22 +1,15 @@
-<form *ngIf="this.user; else loading" (submit)="this.handleSubmit($event)">
+<form *ngIf="this.user; else loadingSpinner" (submit)="this.handleSubmit($event)">
   <label for="display-name">Display Name</label>
   <input type="text" name="display-name" id="display-name" [value]="this.user.displayName">
-  <label for="avatar">Avatar</label>
-  <img *ngIf="this.photoURL; else noAvatar" [attr.src]="this.photoURL" alt="Avatar">
-  <ng-template #noAvatar>
-    <p>No Avatar</p>
-  </ng-template>
-  <input name="avatar" id="avatar" type="file" accept="image/png, image/jpeg" (input)="this.handleFileInput($event)"
-    [class.has-image]="this.photoURL">
   <label for="Email">Email</label>
   <input type="email" name="email" id="email" [value]="this.user.email" disabled>
   <label for="tel">Phone Number</label>
   <input type="tel" name="tel" id="tel" [value]="this.user.phoneNumber" disabled>
   <button type="submit">
     <loading-spinner *ngIf="this.loading; else notLoading" color="white"></loading-spinner>
-    <ng-template #notLoading></ng-template>
+    <ng-template #notLoading>Update</ng-template>
   </button>
 </form>
-<ng-template #loading>
+<ng-template #loadingSpinner>
   <loading-spinner></loading-spinner>
 </ng-template>

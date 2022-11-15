@@ -1,0 +1,17 @@
+<form *ngIf="this.user; else loadingSpinner">
+  <label for="avatar">Avatar</label>
+  <img *ngIf="this.photoURL; else noAvatar" [attr.src]="this.photoURL" alt="Avatar">
+  <ng-template #noAvatar>
+    <p>No Avatar</p>
+  </ng-template>
+  <input name="avatar" id="avatar" type="file" accept="image/png, image/jpeg" (input)="this.handleFileInput($event)"
+    [class.has-image]="this.photoURL">
+  <button type="submit">
+    <loading-spinner *ngIf="this.loading; else notLoading" color="white"></loading-spinner>
+    <ng-template #notLoading></ng-template>
+  </button>
+</form>
+
+<ng-template #loadingSpinner>
+  <loading-spinner></loading-spinner>
+</ng-template>
