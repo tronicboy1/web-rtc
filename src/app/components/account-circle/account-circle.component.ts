@@ -1,5 +1,4 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { DomSanitizer } from "@angular/platform-browser";
 import { AuthService } from "@services/auth.service";
 import "@web-components/base-modal";
 import { fromEvent, map, Subscription, take } from "rxjs";
@@ -21,7 +20,7 @@ export class AccountCircleComponent implements OnInit, OnDestroy, AfterViewInit 
   private avatarElement!: ElementRef<HTMLImageElement>;
   private subscriptions: Subscription[] = [];
 
-  constructor(private authService: AuthService, private santizer: DomSanitizer) {}
+  constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
     this.subscriptions.push(
