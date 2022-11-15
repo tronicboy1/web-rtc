@@ -38,7 +38,9 @@ self.addEventListener("notificationclick", (event) => {
       return uidIsEqual && windowUrlObject.pathname === "/call";
     });
     if (hasWindowToFocus) return hasWindowToFocus.focus();
-    return self.clients.openWindow(callUrlString).then((window) => window?.focus());
+    const contactsURL = new URL(self.location.origin);
+    contactsURL.pathname = "contacts";
+    return self.clients.openWindow(contactsURL).then((window) => window?.focus());
   });
   event.waitUntil(openWindowPromise);
 });

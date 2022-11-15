@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } fr
 import { AuthService } from "@services/auth.service";
 import { UserService } from "@services/user.service";
 import "@web-components/base-modal";
+import { fromEvent, map, mergeMap, Subscription, take } from "rxjs";
 
 @Component({
   selector: "app-account-circle",
