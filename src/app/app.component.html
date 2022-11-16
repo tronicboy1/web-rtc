@@ -3,14 +3,16 @@
     <li>
       <h2><a routerLink="/contacts">Yobo</a></h2>
     </li>
-    <li class="clickable" id="account-circle-container"><app-account-circle></app-account-circle></li>
+    <li class="clickable" id="account-circle-container">
+      <app-account-circle></app-account-circle>
+    </li>
     <li class="clickable" (click)="this.handleLogoutClick()">Logout</li>
   </ul>
 </nav>
 <div *ngIf="this.isAuth" id="padding"></div>
-<div [@routeAnimations]="getRouteAnimationData()">
-  <router-outlet></router-outlet>
-</div>
+<!-- <div [@routeAnimations]="getRouteAnimationData()"> -->
+<router-outlet></router-outlet>
+<!-- </div> -->
 <base-modal [attr.modal-title]="this.incomingCallTitle" (modal-closed)="this.handleModalClose()"
   [show]="this.incomingCall">
   <div class="contact-buttons">

@@ -7,13 +7,14 @@ import { mergeMap, Subscription, take } from "rxjs";
 import { CallQueryParameters } from "./app-routing.module";
 import "@web-components/base-modal";
 import { RtcService } from "@services/rtc.service";
-import { slideInAnimation } from "./animations";
+// import { slideInAnimation } from "./animations";
 
 @Component({
   selector: "app-root",
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.css"],
-  animations: [slideInAnimation],
+  /** Not sure animations are any good here. Will keep for reference. */
+  // animations: [slideInAnimation],
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = "angular";
@@ -121,7 +122,10 @@ export class AppComponent implements OnInit, OnDestroy {
     });
     this.incomingCall = undefined;
   };
-  public getRouteAnimationData() {
-    return this.contexts.getContext("primary")?.route?.snapshot?.data?.["animation"];
-  }
+  /**
+   * Keep for reference in using animations with Angular.
+   * public getRouteAnimationData() {
+   *  return this.contexts.getContext("primary")?.route?.snapshot?.data?.["animation"];
+   * }
+  */
 }
