@@ -8,6 +8,11 @@ export const tagName = "web-rtc";
 
 const dataChannelOpenEventName = "datachannelopen";
 
+/**
+ * Will not delete this unused component.
+ * Will keep as a reference for using WebRTC with WebComponents.
+ */
+
 @customElement(tagName)
 export class WebRTC extends LitElement {
   /**
