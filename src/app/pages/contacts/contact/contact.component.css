@@ -29,6 +29,7 @@ li {
   user-select: none;
   -webkit-user-select: none;
   cursor: pointer;
+  animation: fadeIn forwards 0.6s;
 }
 
 .last {

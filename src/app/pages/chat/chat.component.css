@@ -6,6 +6,7 @@
   margin: auto;
   display: flex;
   flex-direction: column;
+  animation: fadeIn forwards 0.2s;
 }
 
 ul {

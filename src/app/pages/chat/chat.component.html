@@ -1,4 +1,5 @@
 <ul class="card" #messageList>
+  <loading-spinner *ngIf="this.messagesLoading" style="margin: auto;"></loading-spinner>
   <li *ngFor="let message of this.messages; let i = index;" [attr.data-message-id]="message.id"
     [attr.data-viewed]="message.viewed | booleanToNumber" [class.my-message]="this.myUid === message.sender"
     [class.grouped]="this.messages[i-1] ? this.messages[i-1].sender === message.sender : false">

@@ -105,3 +105,12 @@ input {
   background-color: var(--danger-color-hover) !important;
   border: 1px solid var(--danger-color-hover) !important;
 }
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

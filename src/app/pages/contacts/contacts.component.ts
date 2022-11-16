@@ -17,8 +17,9 @@ export class ContactsComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private errorTimeout?: ReturnType<typeof setTimeout>;
   public contacts: ContactWithMessage[] = [];
-  public loading = false;
-  public error = "";
+  public formLoading = false;
+  public contactsLoading = true;
+  public formError = "";
   public uidToDelete = "";
   /** Must manually stop observables after any deletion else you get ghost contacts. */
   private deleteSubject = new Subject<string>();
@@ -50,6 +51,7 @@ export class ContactsComponent implements OnInit, OnDestroy {
   private subscribeToContacts() {
     this.subscriptions.push(
       this.contactService.watchContacts(this.deleteSubject).subscribe((contacts) => {
+        this.contactsLoading && (this.contactsLoading = false);
         this.contacts = contacts;
       }),
     );
@@ -58,15 +60,15 @@ export class ContactsComponent implements OnInit, OnDestroy {
   public handleAddContactSubmit: EventListener = (event) => {
     const { formData, form } = Utils.getFormData(event);
     const email = formData.get("email")!.toString().trim();
-    this.setLoading(this.contactService.addContact(email)).subscribe(() => form.reset());
+    this.setformLoading(this.contactService.addContact(email)).subscribe(() => form.reset());
   };
 
-  /** Sets loading property and error details to class variables for async operations. */
-  private setLoading<T>(observable: Observable<T>): Observable<T>;
-  private setLoading<T>(promise: Promise<T>): Promise<T>;
-  private setLoading<T>(promiseOrObservable: Promise<T> | Observable<T>) {
-    this.loading = true;
-    this.error = "";
+  /** Sets formLoading property and error details to class variables for async operations. */
+  private setformLoading<T>(observable: Observable<T>): Observable<T>;
+  private setformLoading<T>(promise: Promise<T>): Promise<T>;
+  private setformLoading<T>(promiseOrObservable: Promise<T> | Observable<T>) {
+    this.formLoading = true;
+    this.formError = "";
     const isPromise = promiseOrObservable instanceof Promise;
     if (isPromise) {
       return Promise.resolve(promiseOrObservable)
@@ -74,7 +76,7 @@ export class ContactsComponent implements OnInit, OnDestroy {
           if (!(error instanceof Error)) return;
           this.handleError(error);
         })
-        .finally(() => (this.loading = false));
+        .finally(() => (this.formLoading = false));
     } else {
       return promiseOrObservable.pipe(
         catchError((error) => {
@@ -83,15 +85,15 @@ export class ContactsComponent implements OnInit, OnDestroy {
           return of();
         }),
         finalize(() => {
-          this.loading = false;
+          this.formLoading = false;
         }),
       );
     }
   }
   private handleError(error: Error) {
-    this.error = error.message;
+    this.formError = error.message;
     if (this.errorTimeout) clearTimeout(this.errorTimeout);
-    this.errorTimeout = setTimeout(() => (this.error = ""), 5000);
+    this.errorTimeout = setTimeout(() => (this.formError = ""), 5000);
   }
 
   public handlContactTileDeleteClick = (uid: string) => {

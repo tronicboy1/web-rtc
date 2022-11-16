@@ -1,6 +1,6 @@
 <div class="card">
   <h2>My Contacts</h2>
-  <p *ngIf="this.error" id="errors">{{ this.error }}</p>
+  <p *ngIf="this.formError" id="errors">{{ this.formError }}</p>
   <form (submit)="this.handleAddContactSubmit($event)">
     <input type="email" name="email" required autocomplete="off" />
     <button type="submit">
@@ -13,6 +13,7 @@
     <app-contact *ngFor="let contact of this.contacts; let last = last" [contact]="contact"
       (delete)="this.handlContactTileDeleteClick($event)" [last]="last"></app-contact>
   </ul>
+  <loading-spinner *ngIf="this.contactsLoading"></loading-spinner>
 </div>
 
 <base-modal [show]="this.uidToDelete !== ''"
