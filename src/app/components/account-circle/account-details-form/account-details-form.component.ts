@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import "@web-components/loading-spinner";
+import { Utils } from "src/app/utils";
 import { InheritableAccountDetailsComponent } from "../inheritable-account-details-component";
 
 @Component({
@@ -16,10 +17,7 @@ export class AccountDetailsFormComponent extends InheritableAccountDetailsCompon
   }
 
   public handleSubmit: EventListener = (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    if (!(form instanceof HTMLFormElement)) throw TypeError("Listener must be used with form.");
-    const formData = new FormData(form);
+    const { formData } = Utils.getFormData(event);
     const displayName = formData.get("display-name")!.toString().trim();
     this.loading = true;
     this.authService

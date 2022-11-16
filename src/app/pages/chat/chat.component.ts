@@ -3,6 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { AuthService } from "@services/auth.service";
 import { ChatService, DetailedMessageWithUserData } from "@services/chat.service";
 import { map, mergeMap, Subscription, take, forkJoin } from "rxjs";
+import { Utils } from "src/app/utils";
 
 @Component({
   selector: "app-chat",
@@ -50,10 +51,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   public handleSendMessage: EventListener = (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    if (!(form instanceof HTMLFormElement)) throw TypeError("This listener must be used with a Form.");
-    const formData = new FormData(form);
+    const { formData, form } = Utils.getFormData(event);
     const message = formData.get("message")!.toString();
     this.getRoomId()
       .pipe(

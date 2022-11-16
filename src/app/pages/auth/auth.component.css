@@ -98,6 +98,8 @@ form button {
   height: 50px;
   max-height: 50px;
   flex: auto;
+  background-color: var(--highlight-hover);
+  border-color: var(--highlight-hover);
 }
 
 form:invalid button {

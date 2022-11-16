@@ -51,10 +51,7 @@ export class ChangeAvatarFormComponent extends InheritableAccountDetailsComponen
   }
 
   public handleSubmit: EventListener = (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    if (!(form instanceof HTMLFormElement)) throw TypeError("Listener must be used with form.");
-    const formData = new FormData(form);
+    const { formData } = Utils.getFormData(event);
     const avatar = formData.get("avatar")!;
     if (!(avatar instanceof File)) throw TypeError("Avatar formdata should be file.");
     if (!avatar.size) return;
