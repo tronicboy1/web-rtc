@@ -1,3 +1,13 @@
+# About this Project
+
+This project was created to use WebRTC in Angular. It serves as an effective example of using WebRTC to create a chat app in angular and Firebase.
+
+A running example can be visited [here](https://web-rtc-chat-d18ab.web.app).
+
+## Licensing
+
+Distributed under the MIT license.
+
 # Angular
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.6.
