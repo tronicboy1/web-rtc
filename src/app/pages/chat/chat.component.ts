@@ -14,7 +14,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
   private subscriptions: Subscription[] = [];
   public messages: DetailedMessageWithUserData[] = [];
   public myUid = "";
-  public messagesLoading = true;
   @ViewChild("messageList")
   private ul!: ElementRef<HTMLUListElement>;
   private mutationObserver: MutationObserver;
@@ -34,7 +33,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewInit {
       this.getRoomId()
         .pipe(mergeMap((roomId) => this.chatService.watchMessagesByRoomId(roomId)))
         .subscribe((messages) => {
-          this.messagesLoading && (this.messagesLoading = false);
           this.messages = messages;
         }),
       this.authService
