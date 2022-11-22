@@ -21,8 +21,6 @@ export class ContactsComponent implements OnInit, OnDestroy {
   public contactsLoading = true;
   public formError = "";
   public uidToDelete = "";
-  /** Must manually stop observables after any deletion else you get ghost contacts. */
-  private deleteSubject = new Subject<string>();
 
   constructor(private contactService: ContactService) {}
 
@@ -50,7 +48,7 @@ export class ContactsComponent implements OnInit, OnDestroy {
 
   private subscribeToContacts() {
     this.subscriptions.push(
-      this.contactService.watchContacts(this.deleteSubject).subscribe((contacts) => {
+      this.contactService.watchContacts().subscribe((contacts) => {
         this.contactsLoading && (this.contactsLoading = false);
         this.contacts = contacts;
       }),
@@ -101,7 +99,6 @@ export class ContactsComponent implements OnInit, OnDestroy {
   };
   public handleDeleteContact = () => {
     this.contactService.deleteContact(this.uidToDelete);
-    this.deleteSubject.next(this.uidToDelete);
     this.uidToDelete = "";
   };
   public handleDeleteModalClosed = () => (this.uidToDelete = "");

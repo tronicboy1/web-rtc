@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { doc, updateDoc } from "firebase/firestore";
-import { combineLatest, map, mergeMap, of, tap, takeUntil, Subject, filter, take } from "rxjs";
+import { combineLatest, map, mergeMap, of, Subject, take, switchMap } from "rxjs";
 import { AuthService } from "./auth.service";
 import { ChatService } from "./chat.service";
 import { UserData, UserService } from "./user.service";
@@ -13,19 +13,14 @@ export class ContactService extends UserService {
     super();
   }
 
-  public watchContacts(subject: Subject<string>) {
+  public watchContacts() {
     return this.authService.waitForUser().pipe(
       mergeMap((user) => this.watchUserDoc(user.uid)),
       map((userData) => userData.contacts ?? []),
-      mergeMap((contacts) =>
+      switchMap((contacts) =>
         contacts.length
           ? combineLatest(
-              contacts.map((uid) =>
-                combineLatest([this.watchUserDoc(uid), this.chatService.watchLatestMessage(uid)]).pipe(
-                  /** Must manually stop observables after any deletion else you get ghost contacts. */
-                  takeUntil(subject.pipe(filter((uidToDelete) => uid === uidToDelete))),
-                ),
-              ),
+              contacts.map((uid) => combineLatest([this.watchUserDoc(uid), this.chatService.watchLatestMessage(uid)])),
             )
           : /** Must emit empty array if no contacts are left, else old contact will remain */
             of([]),
