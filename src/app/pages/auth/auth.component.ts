@@ -3,7 +3,7 @@ import { AuthService } from "@services/auth.service";
 import "@web-components/base-modal";
 import "@web-components/loading-spinner";
 import "@web-components/google-icon";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { FirebaseError } from "firebase/app";
 import { Utils } from "src/app/utils";
 
@@ -21,7 +21,7 @@ export class AuthComponent implements OnInit {
   public error = "";
   public loading = false;
 
-  constructor(private authService: AuthService, private route: ActivatedRoute, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {}
 
