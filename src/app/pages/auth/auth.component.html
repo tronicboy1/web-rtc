@@ -49,7 +49,7 @@
       <label for="password">Password</label>
       <input id="password" name="password" type="password" minlength="6" maxlength="64" required
         autocomplete="{{ this.mode === 'REGISTER' ? 'new-password' : 'current-password'}}" />
-      <a *ngIf="this.mode === 'LOGIN'" (click)="this.toggleResetPasswordModal(true)">Forgot password?</a>
+      <a data-test-id="forgot-password" *ngIf="this.mode === 'LOGIN'" (click)="this.toggleResetPasswordModal(true)">Forgot password?</a>
     </div>
     <button type="submit">
       <loading-spinner *ngIf="this.loading; else submitText" color="white"></loading-spinner>
