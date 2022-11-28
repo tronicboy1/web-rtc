@@ -95,7 +95,6 @@ export class AuthService extends FirebaseAuth {
 
   public getAuthState() {
     return (this.authState$ ||= new Observable<User | null>((observer) => {
-      console.log("new auth");
       return onAuthStateChanged(this.auth, (user) => {
         this.user = user;
         observer.next(user);
