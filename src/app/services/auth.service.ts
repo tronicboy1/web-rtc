@@ -12,7 +12,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-import { filter, map, Observable } from "rxjs";
+import { filter, map, Observable, shareReplay } from "rxjs";
 import type { OperatorFunction } from "rxjs";
 import type { User } from "firebase/auth";
 import { FirebaseAuth } from "@custom-firebase/inheritables/auth";
@@ -26,6 +26,8 @@ export type FilteredAuthState = OperatorFunction<User | null, User>;
 })
 export class AuthService extends FirebaseAuth {
   public user: User | null = null;
+
+  private authState$?: Observable<User | null>;
 
   constructor(private userService: UserService) {
     super();
@@ -92,13 +94,13 @@ export class AuthService extends FirebaseAuth {
   }
 
   public getAuthState() {
-    return new Observable<User | null>((observer) => {
-      let unsubscribe = onAuthStateChanged(this.auth, (user) => {
+    return (this.authState$ ||= new Observable<User | null>((observer) => {
+      console.log("new auth");
+      return onAuthStateChanged(this.auth, (user) => {
         this.user = user;
         observer.next(user);
       });
-      return unsubscribe;
-    });
+    }).pipe(shareReplay(1)));
   }
 
   /**
